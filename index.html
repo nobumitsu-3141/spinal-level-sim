@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>脊髄くも膜下麻酔 ブロック高シミュレータ｜離島麻酔ツールキット</title>
+<meta name="description" content="比重・体位・投与量が脊髄くも膜下麻酔のブロック高にどう効くかを、不確実性帯つきで示す教育用シミュレータ。完全オフライン対応PWA。">
+<meta name="theme-color" content="#0c111b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ブロック高">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  :root{
+    --ink:#0c111b; --surface:#141b29; --elev:#1c2536; --line:#2a3550;
+    --txt:#e9eef7; --muted:#93a1b8; --dim:#6c7b95;
+    --violet:#a78bfa; --teal:#2dd4bf; --amber:#f5a524; --rose:#fb7185; --green:#34d399; --red:#ef4444; --cyan:#38bdf8;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+    --ui:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",system-ui,sans-serif;
+    --safe-t:env(safe-area-inset-top); --safe-b:env(safe-area-inset-bottom);
+    --safe-l:env(safe-area-inset-left); --safe-r:env(safe-area-inset-right);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--ink);color:var(--txt);font-family:var(--ui);-webkit-text-size-adjust:100%}
+  body{line-height:1.5;padding-bottom:calc(40px + var(--safe-b));-webkit-tap-highlight-color:transparent}
+  .wrap{max-width:960px;margin:0 auto;padding:0 max(14px,var(--safe-l)) 0 max(14px,var(--safe-r))}
+  header{border-bottom:1px solid var(--line);background:#0c111b;position:sticky;top:0;z-index:20;padding-top:var(--safe-t)}
+  .hd{display:flex;align-items:center;gap:10px;padding:11px 0}
+  .badge{flex:0 0 auto;width:34px;height:34px;border-radius:9px;border:1.5px solid var(--violet);display:grid;place-items:center;
+    font-size:18px;font-weight:800;color:var(--violet);background:#160f2e}
+  .brand{display:flex;flex-direction:column;line-height:1.15;min-width:0}
+  .brand b{font-size:15px;letter-spacing:.01em}
+  .brand span{font-size:10.5px;color:var(--dim);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .off{margin-left:auto;flex:0 0 auto;font-size:10px;font-family:var(--mono);color:var(--dim);border:1px solid var(--line);border-radius:20px;padding:3px 9px}
+  .off.ready{color:var(--green);border-color:#244a3a}
+  main{padding-top:14px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:13px}
+  .card h3{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:11px;display:flex;align-items:center;gap:8px}
+  .card h3 .hl{flex:1;height:1px;background:var(--line)}
+
+  .presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px}
+  .pz{flex:1 1 auto;min-width:120px;background:var(--elev);border:1px solid var(--line);color:var(--txt);border-radius:10px;
+    padding:9px 11px;cursor:pointer;text-align:left;font-family:var(--ui)}
+  .pz:active{transform:scale(.985)}
+  .pz b{display:block;font-size:13px;font-weight:700}
+  .pz small{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;font-family:var(--mono)}
+  .pz:hover{border-color:var(--violet)}
+
+  .grp{margin-bottom:13px}
+  .grp:last-child{margin-bottom:0}
+  .grp .lab{font-size:12px;color:var(--muted);margin-bottom:7px}
+  .grp .lab .tag{color:var(--violet);font-weight:700}
+  .seg{display:flex;flex-wrap:wrap;gap:6px}
+  .seg button{flex:1 1 auto;min-height:44px;background:var(--elev);border:1px solid var(--line);color:var(--muted);
+    font-family:var(--ui);font-size:13px;font-weight:600;padding:8px 12px;cursor:pointer;border-radius:10px;white-space:nowrap}
+  .seg button[aria-pressed="true"]{background:var(--violet);color:#1b0f3d;border-color:var(--violet)}
+  .toggles{display:flex;flex-wrap:wrap;gap:8px}
+  .tg{flex:1 1 auto;min-height:44px;background:var(--elev);border:1px solid var(--line);color:var(--muted);border-radius:10px;
+    padding:9px 12px;font-size:13px;cursor:pointer;font-family:var(--ui)}
+  .tg[aria-pressed="true"]{background:#241a3a;border-color:var(--violet);color:var(--txt)}
+  .sl .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .sl label{font-size:12px;color:var(--muted)}
+  .sl .v{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--txt);font-variant-numeric:tabular-nums}
+  .sl .v small{color:var(--dim);font-weight:500;font-size:11px;margin-left:2px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;background:var(--line);outline:none;margin-top:10px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--violet);cursor:pointer;border:4px solid #0c111b;box-shadow:0 0 0 1px var(--violet)}
+  input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--violet);border:4px solid #0c111b}
+
+  .barrow{display:flex;gap:8px;margin-top:13px}
+  .barrow button{flex:1;min-height:44px;background:var(--elev);border:1px solid var(--line);color:var(--muted);border-radius:10px;
+    font-size:13px;font-weight:600;cursor:pointer;font-family:var(--ui);display:flex;align-items:center;justify-content:center;gap:6px}
+  .barrow button:hover{border-color:var(--violet);color:var(--txt)}
+  .barrow button.done{border-color:var(--green);color:var(--green)}
+
+  .layout{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
+  @media(max-width:740px){.layout{grid-template-columns:1fr}}
+  canvas{display:block;width:100%;height:clamp(380px,56vh,540px);background:#0a0f18;border:1px solid var(--line);border-radius:12px;touch-action:manipulation}
+
+  .peakbox{background:linear-gradient(135deg,#1c1633,#211a3a);border:1px solid #3a2d63;border-radius:14px;padding:15px;margin-bottom:12px}
+  .peakbox .l{font-size:10.5px;color:#b9a8e6;letter-spacing:.06em;text-transform:uppercase}
+  .peakbox .big{font-family:var(--mono);font-size:44px;font-weight:800;color:var(--violet);line-height:1;margin:5px 0;font-variant-numeric:tabular-nums}
+  .peakbox .big small{font-size:17px;color:#b9a8e6;font-weight:600}
+  .peakbox .band{font-size:12px;color:var(--muted);font-family:var(--mono)}
+
+  .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:9px;margin-bottom:12px}
+  .k{background:var(--elev);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
+  .k .l{font-size:10px;color:var(--muted);display:block;margin-bottom:4px}
+  .k .n{font-family:var(--mono);font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+  .k .n.ok{color:var(--green)} .k .n.no{color:var(--dim)}
+
+  .notes{list-style:none;font-size:12.5px;margin-top:2px}
+  .notes li{padding:6px 0 6px 18px;position:relative;color:var(--muted);border-bottom:1px solid var(--line)}
+  .notes li:last-child{border-bottom:none}
+  .notes li::before{content:"›";position:absolute;left:2px;color:var(--violet);font-weight:700}
+  .notes li b{color:var(--txt)}
+  .notes li.warn::before{content:"⚠";color:var(--amber)}
+  .notes li.warn b{color:#ffd9a8}
+
+  details.refbox{margin-top:10px}
+  details.refbox summary{font-size:11px;color:var(--muted);cursor:pointer;letter-spacing:.05em;text-transform:uppercase;list-style:none;padding:4px 0}
+  details.refbox summary::-webkit-details-marker{display:none}
+  details.refbox summary::before{content:"▸ ";color:var(--violet)}
+  details.refbox[open] summary::before{content:"▾ "}
+  .ref{font-size:11px;color:var(--dim);line-height:1.75}
+  .ref b{color:var(--muted)}
+  .disc{background:#3a1d1d;border:1px solid #7f3030;border-radius:11px;padding:12px 14px;font-size:12px;color:#ffd9d9;line-height:1.65}
+  .disc b{color:#ffb3b3}
+  footer{text-align:center;font-size:10.5px;color:var(--dim);font-family:var(--mono);padding:6px 0 0}
+  @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="hd">
+  <div class="badge">脊</div>
+  <div class="brand"><b>脊髄くも膜下麻酔 ブロック高シミュレータ</b><span>GOTO ANESTHESIA TOOLKIT · SPINAL BLOCK（教育用）</span></div>
+  <span class="off" id="offBadge">offline…</span>
+</div></div></header>
+
+<main class="wrap">
+  <div class="disc" style="margin-bottom:13px">
+    <b>これは予測器ではなく教育用モデルです。</b> 最終ブロック高の最大の規定因子（腰仙部CSF容量）は臨床的に測定不能で、同一手技でも数分節のばらつきが生じます（Carpenter 1998）。本ツールは<b>制御可能因子（比重・体位・投与量）が「どの向きに・どの程度」効くか</b>を、エビデンスに基づき不確実性帯つきで示すものです。
+  </div>
+
+  <div class="card">
+    <h3>教育プリセット <span class="hl"></span></h3>
+    <div class="presets" id="presets">
+      <button class="pz" onclick="preset('saddle')"><b>サドル（会陰・低位）</b><small>高比重・座位維持・少量</small></button>
+      <button class="pz" onclick="preset('std')"><b>標準（下肢・会陰）</b><small>高比重・座位→仰臥位</small></button>
+      <button class="pz" onclick="preset('high')"><b>高位を狙う</b><small>高比重・仰臥位・頭低位</small></button>
+      <button class="pz" onclick="preset('hypo')"><b>低比重（非依存部へ）</b><small>低比重・側臥位</small></button>
+    </div>
+
+    <div class="grp"><div class="lab"><span class="tag">①</span> 比重（最も重要な制御因子）</div>
+      <div class="seg" id="barSeg">
+        <button data-v="hyper" aria-pressed="true" onclick="setBar('hyper')">高比重</button>
+        <button data-v="iso" onclick="setBar('iso')">等比重</button>
+        <button data-v="hypo" onclick="setBar('hypo')">低比重</button>
+      </div>
+    </div>
+    <div class="grp"><div class="lab"><span class="tag">②</span> 投与時〜直後の体位</div>
+      <div class="seg" id="posSeg">
+        <button data-v="saddle" onclick="setPos('saddle')">座位維持(サドル)</button>
+        <button data-v="sit2sup" aria-pressed="true" onclick="setPos('sit2sup')">座位→仰臥位</button>
+        <button data-v="supine" onclick="setPos('supine')">仰臥位</button>
+        <button data-v="lateral" onclick="setPos('lateral')">側臥位</button>
+      </div>
+    </div>
+    <div class="grp"><div class="lab"><span class="tag">③</span> 穿刺間隙</div>
+      <div class="seg" id="lvlSeg">
+        <button data-v="L23" onclick="setLvl('L23')">L2/3</button>
+        <button data-v="L34" aria-pressed="true" onclick="setLvl('L34')">L3/4</button>
+        <button data-v="L45" onclick="setLvl('L45')">L4/5</button>
+      </div>
+    </div>
+    <div class="grp"><div class="sl">
+      <div class="top"><label for="dose">④ 投与量（高比重ブピバカイン0.5%換算）</label><span class="v"><span id="doseV">12.5</span><small>mg</small></span></div>
+      <input id="dose" type="range" min="5" max="20" step="0.5" value="12.5" oninput="calc()">
+    </div></div>
+    <div class="grp"><div class="lab"><span class="tag">⑤</span> 修飾因子・体位補助</div>
+      <div class="toggles">
+        <button class="tg" id="tgTrend" aria-pressed="false" onclick="tog('trend')">頭低位(Trendelenburg)</button>
+        <button class="tg" id="tgPreg" aria-pressed="false" onclick="tog('preg')">妊娠</button>
+        <button class="tg" id="tgAge" aria-pressed="false" onclick="tog('age')">高齢</button>
+        <button class="tg" id="tgIap" aria-pressed="false" onclick="tog('iap')">腹腔内圧↑・肥満</button>
+      </div>
+    </div>
+    <div class="barrow">
+      <button onclick="resetAll()" id="btnReset">↺ リセット</button>
+      <button onclick="copySummary()" id="btnCopy">⧉ まとめをコピー</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>推定ブロック分布 <span class="hl"></span></h3>
+    <div class="layout">
+      <canvas id="cv"></canvas>
+      <div>
+        <div class="peakbox">
+          <span class="l">推定ピーク感覚遮断レベル</span>
+          <div class="big"><span id="peakLvl">—</span></div>
+          <div class="band" id="bandTxt">不確実性帯：—</div>
+        </div>
+        <div class="kv" id="landmarks"></div>
+        <ul class="notes" id="notes"></ul>
+      </div>
+    </div>
+    <details class="refbox"><summary>エビデンス</summary>
+      <p class="ref">
+      <b>Carpenter RL, et al.</b> Lumbosacral CSF volume is the primary determinant of sensory block extent and duration during spinal anesthesia. <i>Anesthesiology</i> 1998;89:24-29（CSF容量が最大の規定因子＝個別予測が困難な理由）。<br>
+      <b>Hocking G, Wildsmith JAW.</b> Intrathecal drug spread. <i>Br J Anaesth</i> 2004;93:568-578（制御可能因子は比重・体位・投与量。身長/体重は相関乏しい。容量・濃度の影響は限定的で、効くのは総投与量(mass)）。<br>
+      <b>Greene NM.</b> Distribution of local anesthetic solutions within the subarachnoid space. <i>Anesth Analg</i> 1985;64:715-730（比重と体位の相互作用）。
+      </p>
+    </details>
+  </div>
+  <footer>v1.0.0 · 完全オフライン対応 · 教育用・施設プロトコル/添付文書での確認に代わるものではありません</footer>
+</main>
+
+<script>
+  var DEF={bar:'hyper',pos:'sit2sup',lvl:'L34',dose:12.5,trend:false,preg:false,age:false,iap:false};
+  var S={bar:'hyper',pos:'sit2sup',lvl:'L34',trend:false,preg:false,age:false,iap:false};
+  var lastSummary='';
+  function $(id){return document.getElementById(id);}
+
+  // dermatome ladder, index 0 (S5, caudal) .. 26 (C4, cephalad)
+  var LV=['S5','S4','S3','S2','S1','L5','L4','L3','L2','L1','T12','T11','T10','T9','T8','T7','T6','T5','T4','T3','T2','T1','C8','C7','C6','C5','C4'];
+  var LAND={12:'臍',16:'剣状突起',18:'乳頭',21:'鎖骨下',9:'鼠径部',2:'会陰/サドル'};
+
+  // reference peak index at 12.5 mg, by baricity × position (dominant factor)
+  var BASE={
+    hyper:{saddle:4, sit2sup:16, supine:15, lateral:14},
+    iso:  {saddle:8, sit2sup:13, supine:13, lateral:12},
+    hypo: {saddle:14,sit2sup:16, supine:16, lateral:14}
+  };
+
+  function setBar(v){S.bar=v;segUpd('barSeg',v);calc();}
+  function setPos(v){S.pos=v;segUpd('posSeg',v);calc();}
+  function setLvl(v){S.lvl=v;segUpd('lvlSeg',v);calc();}
+  function segUpd(id,v){document.querySelectorAll('#'+id+' button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-v')===v);});}
+  function tog(k){S[k]=!S[k];$('tg'+k.charAt(0).toUpperCase()+k.slice(1)).setAttribute('aria-pressed',S[k]);calc();}
+
+  function syncUI(){
+    segUpd('barSeg',S.bar);segUpd('posSeg',S.pos);segUpd('lvlSeg',S.lvl);
+    ['trend','preg','age','iap'].forEach(function(k){$('tg'+k.charAt(0).toUpperCase()+k.slice(1)).setAttribute('aria-pressed',S[k]);});
+  }
+
+  // educational presets — only configure the existing controls to demonstrate the
+  // baricity × position × dose interaction the model already teaches (no new claims).
+  var PRESETS={
+    saddle:{bar:'hyper',pos:'saddle',lvl:'L34',dose:7.5, trend:false,preg:false,age:false,iap:false},
+    std:   {bar:'hyper',pos:'sit2sup',lvl:'L34',dose:12.5,trend:false,preg:false,age:false,iap:false},
+    high:  {bar:'hyper',pos:'supine',lvl:'L23',dose:15,  trend:true, preg:false,age:false,iap:false},
+    hypo:  {bar:'hypo', pos:'lateral',lvl:'L34',dose:12.5,trend:false,preg:false,age:false,iap:false}
+  };
+  function preset(name){var p=PRESETS[name];if(!p)return;
+    S.bar=p.bar;S.pos=p.pos;S.lvl=p.lvl;S.trend=p.trend;S.preg=p.preg;S.age=p.age;S.iap=p.iap;
+    $('dose').value=p.dose;syncUI();calc();}
+  function resetAll(){
+    S.bar=DEF.bar;S.pos=DEF.pos;S.lvl=DEF.lvl;S.trend=DEF.trend;S.preg=DEF.preg;S.age=DEF.age;S.iap=DEF.iap;
+    $('dose').value=DEF.dose;syncUI();calc();
+    flash('btnReset','↺ リセット');
+  }
+  function copySummary(){
+    var doCopy=navigator.clipboard&&navigator.clipboard.writeText
+      ? navigator.clipboard.writeText(lastSummary)
+      : Promise.reject();
+    doCopy.then(function(){flash('btnCopy','✓ コピーしました');},function(){
+      // fallback for non-secure contexts
+      var ta=document.createElement('textarea');ta.value=lastSummary;document.body.appendChild(ta);
+      ta.select();try{document.execCommand('copy');flash('btnCopy','✓ コピーしました');}catch(e){flash('btnCopy','コピー不可');}
+      document.body.removeChild(ta);
+    });
+  }
+  function flash(id,reset){var b=$(id),t=b.textContent;b.textContent=reset;b.classList.add('done');
+    setTimeout(function(){b.textContent=t;b.classList.remove('done');},1200);}
+
+  function clamp(x,a,b){return Math.max(a,Math.min(b,x));}
+
+  var BARLABEL={hyper:'高比重',iso:'等比重',hypo:'低比重'};
+  var POSLABEL={saddle:'座位維持(サドル)',sit2sup:'座位→仰臥位',supine:'仰臥位',lateral:'側臥位'};
+
+  function calc(){
+    var dose=Number($('dose').value); $('doseV').textContent=dose.toFixed(1);
+    var base=BASE[S.bar][S.pos];
+    var trend=S.trend ? (S.bar==='hyper'?2 : S.bar==='hypo'?-2 : 1) : 0;
+    var lvl={L23:1,L34:0,L45:-1}[S.lvl];
+    var doseAdj=clamp((dose-12.5)*0.15,-2,2);     // 高さへの影響は限定的（Hocking）
+    var mod=(S.preg?2:0)+(S.age?1:0)+(S.iap?1:0);
+    var peak=clamp(base+trend+lvl+doseAdj+mod, 2, 20);
+    var band=3 + ((S.bar!=='hyper')?1:0) + (S.preg?1:0); band=Math.min(band,4);
+    var lo=clamp(peak-band,0,26), hi=clamp(peak+band,0,26);
+
+    // duration (hyperbaric bupivacaine rough surgical anesthesia)
+    var dLo=Math.round(70+(dose-10)*6), dHi=dLo+50;
+    if(S.bar==='iso'){dLo+=20;dHi+=20;}
+
+    var pIdx=Math.round(peak);
+    $('peakLvl').innerHTML = LV[pIdx] + (LAND[pIdx]?' <small>('+LAND[pIdx]+')</small>':'');
+    $('bandTxt').textContent='不確実性帯：'+LV[Math.round(lo)]+' 〜 '+LV[Math.round(hi)]+'（±'+band+'分節）';
+
+    // landmarks reached?
+    function reach(idx){ return peak>=idx; }
+    $('landmarks').innerHTML =
+      kv('会陰 S2-5', reach(2)) +
+      kv('鼠径部 L1', reach(9)) +
+      kv('臍 T10', reach(12)) +
+      kv('剣状突起 T6', reach(16)) +
+      kv('乳頭 T4', reach(18)) +
+      '<div class="k"><span class="l">推定持続(手術麻酔)</span><span class="n">'+dLo+'–'+dHi+' 分</span></div>';
+
+    // notes
+    var n=[];
+    if(S.bar==='hyper') n.push('<b>高比重</b>：重力で<b>低い側</b>へ沈む。体位で頭側進展をコントロール（座位維持＝低位、仰臥位＝胸椎後弯に沿いT4–6へ）。');
+    if(S.bar==='iso') n.push('<b>等比重</b>：注入レベル近傍に留まりやすく<b>体位依存が小さい</b>。一般に持続がやや長い傾向。');
+    if(S.bar==='hypo') n.push('<b>低比重</b>：<b>高い側(非依存部)</b>へ上昇。特殊用途(例：ジャックナイフ肛門手術)で体位と逆向きに作用。');
+    if(S.pos==='saddle'&&S.bar==='hyper') n.push('座位維持で高比重→<b>サドルブロック</b>（仙骨/会陰中心）。');
+    if(S.trend) n.push('頭低位は高比重の頭側進展を<b>増強</b>（低比重では抑制）。急激な高位ブロックに注意。');
+    if(S.preg) n.push('<b>妊娠</b>：硬膜外静脈怒張でCSF容量減少→同一量で<b>ブロックが高位化</b>。減量を考慮。');
+    if(S.age) n.push('<b>高齢</b>：CSF容量減少傾向で高位化しやすい。');
+    if(S.iap) n.push('<b>腹腔内圧↑/肥満</b>：CSF容量減少で高位化しやすい。');
+    n.push('投与量は主に<b>持続時間と濃度(密度)</b>を規定し、最終高さへの影響は限定的（Hocking 2004）。');
+    var hi_warn = peak>=18 ? ' warn' : '';
+    n.push({c:hi_warn, t:'高位ブロックでは<b>低血圧・徐脈・呼吸抑制</b>に備える（T4で心臓交感神経、C3-5で横隔膜）。'});
+    $('notes').innerHTML = n.map(function(x){
+      if(typeof x==='string') return '<li>'+x+'</li>';
+      return '<li class="'+x.c.trim()+'">'+x.t+'</li>';
+    }).join('');
+
+    // summary for copy
+    lastSummary =
+      '【脊麻ブロック高シミュレータ（教育用）】\n'+
+      '比重: '+BARLABEL[S.bar]+' / 体位: '+POSLABEL[S.pos]+' / 穿刺: '+S.lvl+' / 投与量: '+dose.toFixed(1)+' mg\n'+
+      '修飾: '+([S.trend?'頭低位':'',S.preg?'妊娠':'',S.age?'高齢':'',S.iap?'腹腔内圧↑/肥満':''].filter(Boolean).join('・')||'なし')+'\n'+
+      '推定ピーク: '+LV[pIdx]+(LAND[pIdx]?'('+LAND[pIdx]+')':'')+'　不確実性帯: '+LV[Math.round(lo)]+'〜'+LV[Math.round(hi)]+'（±'+band+'分節）\n'+
+      '推定持続(手術麻酔): '+dLo+'–'+dHi+' 分\n'+
+      '※予測器ではなく教育用モデル。最終高はCSF容量で大きく変動（Carpenter 1998）。';
+
+    draw(peak,lo,hi,pIdx);
+  }
+  function kv(label,ok){ return '<div class="k"><span class="l">'+label+'</span><span class="n '+(ok?'ok':'no')+'">'+(ok?'到達':'未到達')+'</span></div>'; }
+
+  // ---- draw dermatome column ----
+  function dpi(cv){ var ratio=window.devicePixelRatio||1, w=cv.clientWidth, h=cv.clientHeight;
+    cv.width=Math.round(w*ratio); cv.height=Math.round(h*ratio); var c=cv.getContext('2d'); c.setTransform(ratio,0,0,ratio,0,0); return {c:c,w:w,h:h}; }
+  function mono(){return 'ui-monospace,Menlo,Consolas,monospace';}
+
+  function draw(peak,lo,hi,pIdx){
+    var cv=$('cv'); var s=dpi(cv), c=s.c, W=s.w, H=s.h;
+    c.clearRect(0,0,W,H);
+    var top=18, bot=H-22, usable=bot-top;
+    var N=LV.length-1; // 26
+    var yOf=function(idx){ return bot - (idx/N)*usable; };
+    var barX=W*0.42, barW=Math.min(54,W*0.13);
+
+    // axis bar background
+    c.fillStyle='#0e1626'; roundRect(c,barX,top,barW,usable,10); c.fill();
+    c.strokeStyle='#26344f';c.lineWidth=1; roundRect(c,barX,top,barW,usable,10); c.stroke();
+
+    // uncertainty band (lo..hi) translucent
+    var yHi=yOf(hi), yLo=yOf(lo);
+    c.fillStyle='rgba(167,139,250,0.16)';
+    c.fillRect(barX,yHi,barW,yLo-yHi);
+
+    // blocked region (0..peak) gradient
+    var yPk=yOf(peak), y0=yOf(0);
+    var g=c.createLinearGradient(0,y0,0,yPk);
+    g.addColorStop(0,'rgba(167,139,250,0.85)'); g.addColorStop(1,'rgba(167,139,250,0.45)');
+    c.save(); roundRect(c,barX,top,barW,usable,10); c.clip();
+    c.fillStyle=g; c.fillRect(barX,yPk,barW,y0-yPk);
+    c.restore();
+
+    // peak line
+    c.strokeStyle='#ede9fe';c.lineWidth=2.5;c.beginPath();c.moveTo(barX-8,yPk);c.lineTo(barX+barW+8,yPk);c.stroke();
+    c.fillStyle='#ede9fe';c.font='bold 12px '+mono();c.textAlign='left';c.textBaseline='middle';
+    c.fillText('ピーク '+LV[pIdx],barX+barW+12,yPk);
+
+    // dermatome labels (left) — every level, key ones brighter
+    c.textAlign='right';c.font='10px '+mono();
+    for(var i=0;i<=N;i++){
+      var key=(i%2===0)||LAND[i];
+      if(!key && i%2!==0) continue;
+      c.fillStyle=LAND[i]?'#cbb8f5':'#5d6b85';
+      c.textBaseline='middle';
+      c.fillText(LV[i],barX-10,yOf(i));
+    }
+    // landmark ticks + labels (right of bar, but offset to avoid peak label)
+    c.textAlign='left';c.font='10px '+mono();
+    for(var k in LAND){ var idx=Number(k); var yy=yOf(idx);
+      c.strokeStyle='rgba(147,161,184,.5)';c.lineWidth=1;c.setLineDash([2,2]);
+      c.beginPath();c.moveTo(barX,yy);c.lineTo(barX+barW,yy);c.stroke();c.setLineDash([]);
+      if(Math.abs(idx-peak)>0.8){ c.fillStyle='#7b8aa6';c.textBaseline='middle';c.fillText(LAND[idx],barX+barW+12,yy); }
+    }
+    // caption
+    c.fillStyle='#6c7b95';c.font='10px '+mono();c.textAlign='center';c.textBaseline='top';
+    c.fillText('尾側 ↓                    ↑ 頭側',barX+barW/2,bot+4);
+    c.save();c.translate(14,top+usable/2);c.rotate(-Math.PI/2);c.textAlign='center';c.fillText('デルマトーム',0,0);c.restore();
+  }
+  function roundRect(c,x,y,w,h,r){ c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath(); }
+
+  var rT;
+  window.addEventListener('resize',function(){clearTimeout(rT);rT=setTimeout(calc,120);});
+  window.addEventListener('orientationchange',function(){setTimeout(calc,200);});
+  calc();
+
+  // ---- PWA: register service worker (full offline) ----
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',function(){
+      navigator.serviceWorker.register('sw.js').then(function(){
+        var b=$('offBadge');b.textContent='✓ オフライン対応';b.classList.add('ready');
+      }).catch(function(){ $('offBadge').textContent=''; });
+    });
+  } else { $('offBadge').textContent=''; }
+</script>
+</body>
+</html>

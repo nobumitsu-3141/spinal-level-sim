@@ -1,0 +1,16 @@
+{
+  "name": "脊髄くも膜下麻酔 ブロック高シミュレータ",
+  "short_name": "ブロック高",
+  "description": "離島麻酔ツールキット：比重・体位・投与量が脊髄くも膜下麻酔のブロック高にどう効くかを不確実性帯つきで示す教育用シミュレータ",
+  "lang": "ja",
+  "start_url": ".",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0c111b",
+  "theme_color": "#0c111b",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
