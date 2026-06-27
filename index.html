@@ -199,8 +199,14 @@
 
   <div class="card">
     <h3>用量プランナー（容量法・0.5%マーカイン） <span class="hl"></span></h3>
-    <p class="plannote">手術部位の<b style="color:#cbb8f5">基本量（高比重）</b>に身長・体重・年齢で補正する実践的な<b style="color:#cbb8f5">容量法</b>。<b>これは出典ブログの個人的・経験的方法（形式的な引用文献なし）</b>であり、施設プロトコル・添付文書・最新ガイドラインでの確認が前提です。上限は添付文書の 4&nbsp;mL(20&nbsp;mg)。</p>
-    <div class="grp"><div class="lab"><span class="tag">A</span> 手術部位（基本量 mL）</div>
+    <p class="plannote">手術部位の<b style="color:#cbb8f5">基本量</b>に身長・体重・年齢で補正する実践的な<b style="color:#cbb8f5">容量法</b>。<b style="color:#cbb8f5">高比重・等比重</b>いずれの0.5%マーカインにも対応（用量域は同じ）。<b>これは出典ブログの個人的・経験的方法（形式的な引用文献なし）</b>であり、施設プロトコル・添付文書・最新ガイドラインでの確認が前提です。上限は添付文書の 4&nbsp;mL(20&nbsp;mg)。</p>
+    <div class="grp"><div class="lab"><span class="tag">A</span> 比重（使用する0.5%マーカイン）</div>
+      <div class="seg" id="pbarSeg">
+        <button data-v="hyper" aria-pressed="true" onclick="setPbar('hyper')">高比重</button>
+        <button data-v="iso" onclick="setPbar('iso')">等比重</button>
+      </div>
+    </div>
+    <div class="grp"><div class="lab"><span class="tag">B</span> 手術部位（基本量 mL）</div>
       <div class="seg" id="surgSeg">
         <button data-v="perineal" onclick="setSurg('perineal')">会陰 1.5</button>
         <button data-v="leg" aria-pressed="true" onclick="setSurg('leg')">下肢 2.5</button>
@@ -208,14 +214,14 @@
         <button data-v="lowabd" onclick="setSurg('lowabd')">下腹部・虫垂・帝切 3.0</button>
       </div>
     </div>
-    <div class="grp"><div class="lab"><span class="tag">B</span> 患者因子</div>
+    <div class="grp"><div class="lab"><span class="tag">C</span> 患者因子</div>
       <div class="pgrid">
         <div class="nf"><label>身長 <small>cm</small></label><input id="ht" type="number" inputmode="decimal" value="160" min="120" max="210" step="1" oninput="plan()"></div>
         <div class="nf"><label>体重 <small>kg</small></label><input id="wt" type="number" inputmode="decimal" value="60" min="30" max="200" step="1" oninput="plan()"></div>
         <div class="nf"><label>年齢 <small>歳</small></label><input id="ag" type="number" inputmode="numeric" value="65" min="15" max="100" step="1" oninput="plan()"></div>
       </div>
     </div>
-    <div class="grp"><div class="lab"><span class="tag">C</span> 補助</div>
+    <div class="grp"><div class="lab"><span class="tag">D</span> 補助</div>
       <div class="toggles">
         <button class="tg" id="tgFenta" aria-pressed="false" onclick="togFenta()">帝切＋フェンタニル併用（×2/3）</button>
       </div>
@@ -226,7 +232,8 @@
     </div>
     <details class="refbox"><summary>容量法の計算ルール</summary>
       <p class="ref">
-      <b>基本量(0.5%高比重マーカイン)</b>：会陰1.5 / 下肢2.5 / 鼠径2.8 / 下腹部・虫垂・帝切3.0 mL。<br>
+      <b>基本量(0.5%マーカイン)</b>：会陰1.5 / 下肢2.5 / 鼠径2.8 / 下腹部・虫垂・帝切3.0 mL（<b>高比重・等比重で共通</b>。出典の等比重・下肢の例も2.5mL、添付文書も両者2–4mL/上限20mg）。<br>
+      <b>等比重の特徴</b>：用量は同じだが体位調整が効きにくく注入レベル近傍に留まりやすい。発現は遅め・持続は長め。サドル（会陰選択）は高比重向き。<br>
       <b>身長補正</b>：160cm基準、5cmあたり±0.1mL（高いほど増）。<br>
       <b>年齢補正</b>：60歳超で5歳あたり−0.1mL（高齢ほど減）。若年はくも膜下腔が直線的で急速・広範に拡がるため減量/慎重に。<br>
       <b>体重補正</b>：標準体重(BMI22)超で10kgあたり−0.1mL（肥満で減）。<br>
@@ -261,7 +268,7 @@
       </p>
     </details>
   </div>
-  <footer>v1.1.0 · 完全オフライン対応 · 教育用・施設プロトコル/添付文書での確認に代わるものではありません</footer>
+  <footer>v1.2.0 · 完全オフライン対応 · 教育用・施設プロトコル/添付文書での確認に代わるものではありません</footer>
 </main>
 
 <script>
@@ -454,8 +461,9 @@
   // 出典ブログの実践的・経験的方法。基本量(高比重)＋身長/体重/年齢補正、上限は添付文書の4mL(20mg)。
   var SURG={perineal:1.5,leg:2.5,inguinal:2.8,lowabd:3.0};
   var SURGN={perineal:'会陰',leg:'下肢',inguinal:'鼠径',lowabd:'下腹部・虫垂・帝切'};
-  var P={surg:'leg',fenta:false};
+  var P={bar:'hyper',surg:'leg',fenta:false};
   var lastPlanMl=2.5;
+  function setPbar(v){P.bar=v;segUpd('pbarSeg',v);plan();}
   function setSurg(v){P.surg=v;segUpd('surgSeg',v);plan();}
   function togFenta(){P.fenta=!P.fenta;$('tgFenta').setAttribute('aria-pressed',P.fenta);plan();}
   function amtCell(x){ var s=(x>=0?'+':'−')+Math.abs(x).toFixed(2); var c=x>0?'pos':(x<0?'neg':''); return '<td class="amt '+c+'">'+s+'</td>'; }
@@ -478,7 +486,7 @@
     lastPlanMl=sug;
 
     var rows=
-      '<tr><td>基本量（'+SURGN[P.surg]+'）</td>'+amtCell(base)+'</tr>'+
+      '<tr><td>基本量（'+BARLABEL[P.bar]+'・'+SURGN[P.surg]+'）</td>'+amtCell(base)+'</tr>'+
       '<tr><td>身長補正（160cm基準）</td>'+amtCell(hCorr)+'</tr>'+
       '<tr><td>年齢補正（60歳超で減）</td>'+amtCell(aCorr)+'</tr>'+
       '<tr><td>体重補正（標準体重'+ideal.toFixed(0)+'kg超で減）</td>'+amtCell(wCorr)+'</tr>'+
@@ -488,6 +496,10 @@
     if(capped) warns.push('計算値が添付文書上限 <b>4&nbsp;mL(20&nbsp;mg)</b> を超えたため上限に丸めました。');
     if(low) warns.push('計算値が 1&nbsp;mL 未満。サドル等の少量域として別途検討してください。');
     if(A<40) warns.push('若年：くも膜下腔が直線的で<b>急速・広範に進展</b>しやすい。慎重に。');
+    if(P.bar==='iso'){
+      warns.push('等比重：<b>体位による調節が効きにくく</b>注入レベル近傍に留まりやすい。発現は遅め・持続は長め。');
+      if(P.surg==='perineal') warns.push('等比重では<b>サドル（会陰選択的）ブロックは形成困難</b>。会陰選択なら高比重を検討。');
+    }
 
     $('planout').innerHTML =
       '<div class="res"><span class="lab">推奨開始量</span><span class="big">'+sug.toFixed(1)+'<span style="font-size:16px"> mL</span></span>'+
@@ -496,9 +508,10 @@
       (warns.length?'<div class="pwarn">⚠ '+warns.join('<br>⚠ ')+'</div>':'');
   }
   function applyPlan(){
+    S.bar=P.bar; segUpd('barSeg',S.bar);          // 本体シミュレータの比重も同期
     $('dose').value=lastPlanMl.toFixed(1);
     calc();
-    flash('btnApply','✓ '+lastPlanMl.toFixed(1)+' mL を反映しました');
+    flash('btnApply','✓ '+lastPlanMl.toFixed(1)+' mL ('+BARLABEL[P.bar]+') を反映');
     var rc=$('resultCard'); if(rc) rc.scrollIntoView({behavior:'smooth',block:'start'});
   }
 
