@@ -75,6 +75,29 @@
   .barrow button:hover{border-color:var(--violet);color:var(--txt)}
   .barrow button.done{border-color:var(--green);color:var(--green)}
 
+  .sl .v .vmg{font-size:12px;color:var(--dim);font-weight:600}
+  .sl .hint{font-size:10.5px;color:var(--dim);font-family:var(--mono);margin-top:7px;line-height:1.5}
+  .plannote{font-size:12px;color:var(--muted);margin-bottom:13px;line-height:1.6}
+  .plannote b{color:#ffd9a8}
+  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+  .nf{display:flex;flex-direction:column;gap:5px}
+  .nf label{font-size:11px;color:var(--muted)}
+  .nf label small{color:var(--dim);font-family:var(--mono)}
+  .nf input{width:100%;background:var(--elev);border:1px solid var(--line);border-radius:10px;color:var(--txt);
+    font-family:var(--mono);font-size:18px;font-weight:700;padding:9px 11px;text-align:right;font-variant-numeric:tabular-nums;min-height:44px}
+  .nf input:focus{outline:2px solid var(--violet);outline-offset:1px;border-color:transparent}
+  .planout{background:var(--elev);border:1px solid var(--line);border-radius:11px;padding:13px 14px;margin-bottom:12px}
+  .planout .res{display:flex;align-items:baseline;gap:9px;margin-bottom:10px;flex-wrap:wrap}
+  .planout .res .lab{font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+  .planout .res .big{font-family:var(--mono);font-size:32px;font-weight:800;color:var(--violet);line-height:1;font-variant-numeric:tabular-nums}
+  .planout .res .mg{font-family:var(--mono);font-size:15px;color:var(--muted);font-weight:600}
+  .planout table{width:100%;border-collapse:collapse;font-size:12px;margin-top:2px}
+  .planout td{padding:3px 0;color:var(--muted);font-variant-numeric:tabular-nums;border-bottom:1px solid var(--line)}
+  .planout tr:last-child td{border-bottom:none}
+  .planout td.amt{text-align:right;font-family:var(--mono);color:var(--txt);white-space:nowrap}
+  .planout td.amt.neg{color:var(--rose)} .planout td.amt.pos{color:var(--teal)}
+  .planout .pwarn{margin-top:10px;font-size:11.5px;color:#ffd9a8;background:#3a2a16;border:1px solid #6b4f23;border-radius:8px;padding:8px 10px;line-height:1.55}
+
   .layout{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
   @media(max-width:740px){.layout{grid-template-columns:1fr}}
   canvas{display:block;width:100%;height:clamp(380px,56vh,540px);background:#0a0f18;border:1px solid var(--line);border-radius:12px;touch-action:manipulation}
@@ -156,8 +179,9 @@
       </div>
     </div>
     <div class="grp"><div class="sl">
-      <div class="top"><label for="dose">④ 投与量（高比重ブピバカイン0.5%換算）</label><span class="v"><span id="doseV">12.5</span><small>mg</small></span></div>
-      <input id="dose" type="range" min="5" max="20" step="0.5" value="12.5" oninput="calc()">
+      <div class="top"><label for="dose">④ 投与量（0.5%マーカイン）</label><span class="v"><span id="doseV">2.5</span><small>mL</small> <span class="vmg">= <span id="doseMg">12.5</span> mg</span></span></div>
+      <input id="dose" type="range" min="1" max="4" step="0.1" value="2.5" oninput="calc()">
+      <div class="hint">0.5%マーカイン = 5&nbsp;mg/mL ／ 添付文書：通常 2–4&nbsp;mL(10–20&nbsp;mg)・上限 4&nbsp;mL(20&nbsp;mg)</div>
     </div></div>
     <div class="grp"><div class="lab"><span class="tag">⑤</span> 修飾因子・体位補助</div>
       <div class="toggles">
@@ -174,6 +198,46 @@
   </div>
 
   <div class="card">
+    <h3>用量プランナー（容量法・0.5%マーカイン） <span class="hl"></span></h3>
+    <p class="plannote">手術部位の<b style="color:#cbb8f5">基本量（高比重）</b>に身長・体重・年齢で補正する実践的な<b style="color:#cbb8f5">容量法</b>。<b>これは出典ブログの個人的・経験的方法（形式的な引用文献なし）</b>であり、施設プロトコル・添付文書・最新ガイドラインでの確認が前提です。上限は添付文書の 4&nbsp;mL(20&nbsp;mg)。</p>
+    <div class="grp"><div class="lab"><span class="tag">A</span> 手術部位（基本量 mL）</div>
+      <div class="seg" id="surgSeg">
+        <button data-v="perineal" onclick="setSurg('perineal')">会陰 1.5</button>
+        <button data-v="leg" aria-pressed="true" onclick="setSurg('leg')">下肢 2.5</button>
+        <button data-v="inguinal" onclick="setSurg('inguinal')">鼠径 2.8</button>
+        <button data-v="lowabd" onclick="setSurg('lowabd')">下腹部・虫垂・帝切 3.0</button>
+      </div>
+    </div>
+    <div class="grp"><div class="lab"><span class="tag">B</span> 患者因子</div>
+      <div class="pgrid">
+        <div class="nf"><label>身長 <small>cm</small></label><input id="ht" type="number" inputmode="decimal" value="160" min="120" max="210" step="1" oninput="plan()"></div>
+        <div class="nf"><label>体重 <small>kg</small></label><input id="wt" type="number" inputmode="decimal" value="60" min="30" max="200" step="1" oninput="plan()"></div>
+        <div class="nf"><label>年齢 <small>歳</small></label><input id="ag" type="number" inputmode="numeric" value="65" min="15" max="100" step="1" oninput="plan()"></div>
+      </div>
+    </div>
+    <div class="grp"><div class="lab"><span class="tag">C</span> 補助</div>
+      <div class="toggles">
+        <button class="tg" id="tgFenta" aria-pressed="false" onclick="togFenta()">帝切＋フェンタニル併用（×2/3）</button>
+      </div>
+    </div>
+    <div class="planout" id="planout"></div>
+    <div class="barrow">
+      <button onclick="applyPlan()" id="btnApply">↧ この量を「投与量」に反映してシミュレート</button>
+    </div>
+    <details class="refbox"><summary>容量法の計算ルール</summary>
+      <p class="ref">
+      <b>基本量(0.5%高比重マーカイン)</b>：会陰1.5 / 下肢2.5 / 鼠径2.8 / 下腹部・虫垂・帝切3.0 mL。<br>
+      <b>身長補正</b>：160cm基準、5cmあたり±0.1mL（高いほど増）。<br>
+      <b>年齢補正</b>：60歳超で5歳あたり−0.1mL（高齢ほど減）。若年はくも膜下腔が直線的で急速・広範に拡がるため減量/慎重に。<br>
+      <b>体重補正</b>：標準体重(BMI22)超で10kgあたり−0.1mL（肥満で減）。<br>
+      <b>フェンタニル併用(帝切)</b>：血圧低下軽減のため×2/3。<br>
+      <b>上限</b>：添付文書の4mL(20mg)で頭打ち。<br>
+      出典：麻酔科勤務医のお勉強日記「脊髄くも膜下麻酔の投与量の決め方」(2011)。本アプリでは記載の計算例3例と一致することを確認のうえ実装。
+      </p>
+    </details>
+  </div>
+
+  <div class="card" id="resultCard">
     <h3>推定ブロック分布 <span class="hl"></span></h3>
     <div class="layout">
       <canvas id="cv"></canvas>
@@ -191,15 +255,17 @@
       <p class="ref">
       <b>Carpenter RL, et al.</b> Lumbosacral CSF volume is the primary determinant of sensory block extent and duration during spinal anesthesia. <i>Anesthesiology</i> 1998;89:24-29（CSF容量が最大の規定因子＝個別予測が困難な理由）。<br>
       <b>Hocking G, Wildsmith JAW.</b> Intrathecal drug spread. <i>Br J Anaesth</i> 2004;93:568-578（制御可能因子は比重・体位・投与量。身長/体重は相関乏しい。容量・濃度の影響は限定的で、効くのは総投与量(mass)）。<br>
-      <b>Greene NM.</b> Distribution of local anesthetic solutions within the subarachnoid space. <i>Anesth Analg</i> 1985;64:715-730（比重と体位の相互作用）。
+      <b>Greene NM.</b> Distribution of local anesthetic solutions within the subarachnoid space. <i>Anesth Analg</i> 1985;64:715-730（比重と体位の相互作用）。<br>
+      <b>添付文書（用量の根拠）</b>：マーカイン注脊麻用0.5%高比重／等比重（アストラゼネカ）。0.5%=5&nbsp;mg/mL、通常成人10–20&nbsp;mg(2–4&nbsp;mL)、<b>上限20&nbsp;mg(4&nbsp;mL)</b>。高比重は手術台の傾斜で麻酔範囲をある程度調節可能。<br>
+      <b>容量法プランナーの出典</b>：麻酔科勤務医のお勉強日記「脊髄くも膜下麻酔の投与量の決め方」(knight1112jp.seesaa.net, 2011)。手術部位別基本量＋身長/体重/年齢補正の<b>実践的・経験的な個人の方法</b>（形式的な引用文献はなし）。容量・上限は上記添付文書で裏取り。
       </p>
     </details>
   </div>
-  <footer>v1.0.0 · 完全オフライン対応 · 教育用・施設プロトコル/添付文書での確認に代わるものではありません</footer>
+  <footer>v1.1.0 · 完全オフライン対応 · 教育用・施設プロトコル/添付文書での確認に代わるものではありません</footer>
 </main>
 
 <script>
-  var DEF={bar:'hyper',pos:'sit2sup',lvl:'L34',dose:12.5,trend:false,preg:false,age:false,iap:false};
+  var DEF={bar:'hyper',pos:'sit2sup',lvl:'L34',dose:2.5,trend:false,preg:false,age:false,iap:false}; // dose in mL (0.5% = 5 mg/mL)
   var S={bar:'hyper',pos:'sit2sup',lvl:'L34',trend:false,preg:false,age:false,iap:false};
   var lastSummary='';
   function $(id){return document.getElementById(id);}
@@ -228,11 +294,11 @@
 
   // educational presets — only configure the existing controls to demonstrate the
   // baricity × position × dose interaction the model already teaches (no new claims).
-  var PRESETS={
-    saddle:{bar:'hyper',pos:'saddle',lvl:'L34',dose:7.5, trend:false,preg:false,age:false,iap:false},
-    std:   {bar:'hyper',pos:'sit2sup',lvl:'L34',dose:12.5,trend:false,preg:false,age:false,iap:false},
-    high:  {bar:'hyper',pos:'supine',lvl:'L23',dose:15,  trend:true, preg:false,age:false,iap:false},
-    hypo:  {bar:'hypo', pos:'lateral',lvl:'L34',dose:12.5,trend:false,preg:false,age:false,iap:false}
+  var PRESETS={ // dose in mL
+    saddle:{bar:'hyper',pos:'saddle',lvl:'L34',dose:1.5,trend:false,preg:false,age:false,iap:false},
+    std:   {bar:'hyper',pos:'sit2sup',lvl:'L34',dose:2.5,trend:false,preg:false,age:false,iap:false},
+    high:  {bar:'hyper',pos:'supine',lvl:'L23',dose:3.0,trend:true, preg:false,age:false,iap:false},
+    hypo:  {bar:'hypo', pos:'lateral',lvl:'L34',dose:2.5,trend:false,preg:false,age:false,iap:false}
   };
   function preset(name){var p=PRESETS[name];if(!p)return;
     S.bar=p.bar;S.pos=p.pos;S.lvl=p.lvl;S.trend=p.trend;S.preg=p.preg;S.age=p.age;S.iap=p.iap;
@@ -261,19 +327,24 @@
   var BARLABEL={hyper:'高比重',iso:'等比重',hypo:'低比重'};
   var POSLABEL={saddle:'座位維持(サドル)',sit2sup:'座位→仰臥位',supine:'仰臥位',lateral:'側臥位'};
 
+  function mgFmt(mg){ return (Math.round(mg*10)%10===0) ? mg.toFixed(0) : mg.toFixed(1); }
+
   function calc(){
-    var dose=Number($('dose').value); $('doseV').textContent=dose.toFixed(1);
+    var ml=Number($('dose').value);               // 投与量は mL（0.5%マーカイン = 5 mg/mL）
+    var mg=ml*5;
+    $('doseV').textContent=ml.toFixed(1);
+    $('doseMg').textContent=mgFmt(mg);
     var base=BASE[S.bar][S.pos];
     var trend=S.trend ? (S.bar==='hyper'?2 : S.bar==='hypo'?-2 : 1) : 0;
     var lvl={L23:1,L34:0,L45:-1}[S.lvl];
-    var doseAdj=clamp((dose-12.5)*0.15,-2,2);     // 高さへの影響は限定的（Hocking）
+    var doseAdj=clamp((mg-12.5)*0.15,-2,2);     // 高さへの影響は限定的（Hocking）
     var mod=(S.preg?2:0)+(S.age?1:0)+(S.iap?1:0);
     var peak=clamp(base+trend+lvl+doseAdj+mod, 2, 20);
     var band=3 + ((S.bar!=='hyper')?1:0) + (S.preg?1:0); band=Math.min(band,4);
     var lo=clamp(peak-band,0,26), hi=clamp(peak+band,0,26);
 
     // duration (hyperbaric bupivacaine rough surgical anesthesia)
-    var dLo=Math.round(70+(dose-10)*6), dHi=dLo+50;
+    var dLo=Math.round(70+(mg-10)*6), dHi=dLo+50;
     if(S.bar==='iso'){dLo+=20;dHi+=20;}
 
     var pIdx=Math.round(peak);
@@ -311,7 +382,7 @@
     // summary for copy
     lastSummary =
       '【脊麻ブロック高シミュレータ（教育用）】\n'+
-      '比重: '+BARLABEL[S.bar]+' / 体位: '+POSLABEL[S.pos]+' / 穿刺: '+S.lvl+' / 投与量: '+dose.toFixed(1)+' mg\n'+
+      '比重: '+BARLABEL[S.bar]+' / 体位: '+POSLABEL[S.pos]+' / 穿刺: '+S.lvl+' / 投与量: '+ml.toFixed(1)+' mL ('+mgFmt(mg)+' mg, 0.5%マーカイン)\n'+
       '修飾: '+([S.trend?'頭低位':'',S.preg?'妊娠':'',S.age?'高齢':'',S.iap?'腹腔内圧↑/肥満':''].filter(Boolean).join('・')||'なし')+'\n'+
       '推定ピーク: '+LV[pIdx]+(LAND[pIdx]?'('+LAND[pIdx]+')':'')+'　不確実性帯: '+LV[Math.round(lo)]+'〜'+LV[Math.round(hi)]+'（±'+band+'分節）\n'+
       '推定持続(手術麻酔): '+dLo+'–'+dHi+' 分\n'+
@@ -379,10 +450,63 @@
   }
   function roundRect(c,x,y,w,h,r){ c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath(); }
 
+  // ---- 用量プランナー（容量法・0.5%マーカイン）----
+  // 出典ブログの実践的・経験的方法。基本量(高比重)＋身長/体重/年齢補正、上限は添付文書の4mL(20mg)。
+  var SURG={perineal:1.5,leg:2.5,inguinal:2.8,lowabd:3.0};
+  var SURGN={perineal:'会陰',leg:'下肢',inguinal:'鼠径',lowabd:'下腹部・虫垂・帝切'};
+  var P={surg:'leg',fenta:false};
+  var lastPlanMl=2.5;
+  function setSurg(v){P.surg=v;segUpd('surgSeg',v);plan();}
+  function togFenta(){P.fenta=!P.fenta;$('tgFenta').setAttribute('aria-pressed',P.fenta);plan();}
+  function amtCell(x){ var s=(x>=0?'+':'−')+Math.abs(x).toFixed(2); var c=x>0?'pos':(x<0?'neg':''); return '<td class="amt '+c+'">'+s+'</td>'; }
+  function plan(){
+    var H=clamp(Number($('ht').value)||160,120,210);
+    var W=clamp(Number($('wt').value)||60,30,200);
+    var A=clamp(Number($('ag').value)||60,15,100);
+    var base=SURG[P.surg];
+    var hCorr=(H-160)/5*0.1;                       // 160cm基準、5cmあたり±0.1mL
+    var aCorr=A>60 ? -((A-60)/5*0.1) : 0;          // 60歳超で5歳あたり−0.1mL
+    var ideal=22*Math.pow(H/100,2);                // 標準体重(BMI22)
+    var wCorr=W>ideal ? -((W-ideal)/10*0.1) : 0;   // 肥満で10kgあたり−0.1mL
+    var raw=base+hCorr+aCorr+wCorr;
+    var preFenta=raw;
+    if(P.fenta) raw=raw*2/3;                        // 帝切+フェンタニル→×2/3
+
+    var capped=false, low=false, sug=Math.round(raw*10)/10;
+    if(sug>4.0){sug=4.0;capped=true;}
+    if(sug<1.0){sug=1.0;low=true;}
+    lastPlanMl=sug;
+
+    var rows=
+      '<tr><td>基本量（'+SURGN[P.surg]+'）</td>'+amtCell(base)+'</tr>'+
+      '<tr><td>身長補正（160cm基準）</td>'+amtCell(hCorr)+'</tr>'+
+      '<tr><td>年齢補正（60歳超で減）</td>'+amtCell(aCorr)+'</tr>'+
+      '<tr><td>体重補正（標準体重'+ideal.toFixed(0)+'kg超で減）</td>'+amtCell(wCorr)+'</tr>'+
+      (P.fenta?'<tr><td>フェンタニル併用（×2/3）</td><td class="amt neg">−'+(preFenta-raw).toFixed(2)+'</td></tr>':'');
+
+    var warns=[];
+    if(capped) warns.push('計算値が添付文書上限 <b>4&nbsp;mL(20&nbsp;mg)</b> を超えたため上限に丸めました。');
+    if(low) warns.push('計算値が 1&nbsp;mL 未満。サドル等の少量域として別途検討してください。');
+    if(A<40) warns.push('若年：くも膜下腔が直線的で<b>急速・広範に進展</b>しやすい。慎重に。');
+
+    $('planout').innerHTML =
+      '<div class="res"><span class="lab">推奨開始量</span><span class="big">'+sug.toFixed(1)+'<span style="font-size:16px"> mL</span></span>'+
+      '<span class="mg">= '+mgFmt(sug*5)+' mg</span></div>'+
+      '<table>'+rows+'</table>'+
+      (warns.length?'<div class="pwarn">⚠ '+warns.join('<br>⚠ ')+'</div>':'');
+  }
+  function applyPlan(){
+    $('dose').value=lastPlanMl.toFixed(1);
+    calc();
+    flash('btnApply','✓ '+lastPlanMl.toFixed(1)+' mL を反映しました');
+    var rc=$('resultCard'); if(rc) rc.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
   var rT;
   window.addEventListener('resize',function(){clearTimeout(rT);rT=setTimeout(calc,120);});
   window.addEventListener('orientationchange',function(){setTimeout(calc,200);});
   calc();
+  plan();
 
   // ---- PWA: register service worker (full offline) ----
   if('serviceWorker' in navigator){
