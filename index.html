@@ -77,6 +77,11 @@
 
   .sl .v .vmg{font-size:12px;color:var(--dim);font-weight:600}
   .sl .hint{font-size:10.5px;color:var(--dim);font-family:var(--mono);margin-top:7px;line-height:1.5}
+  .adjrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){.adjrow{grid-template-columns:1fr}}
+  .adj{display:flex;flex-direction:column;gap:6px}
+  .adjlab{font-size:11px;color:var(--muted)}
+  .adjlab b{color:var(--txt)}
   .plannote{font-size:12px;color:var(--muted);margin-bottom:13px;line-height:1.6}
   .plannote b{color:#ffd9a8}
   .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
@@ -191,6 +196,24 @@
         <button class="tg" id="tgIap" aria-pressed="false" onclick="tog('iap')">腹腔内圧↑・肥満</button>
       </div>
     </div>
+    <div class="grp"><div class="lab"><span class="tag">⑥</span> 添加薬（髄腔内オピオイド）</div>
+      <div class="adjrow">
+        <div class="adj"><span class="adjlab"><b>フェンタニル</b>（脂溶性）</span>
+          <div class="seg" id="fentaSeg">
+            <button data-v="0" aria-pressed="true" onclick="setFenta(0)">なし</button>
+            <button data-v="10" onclick="setFenta(10)">10µg</button>
+            <button data-v="25" onclick="setFenta(25)">25µg</button>
+          </div>
+        </div>
+        <div class="adj"><span class="adjlab"><b>モルヒネ</b>（水溶性）</span>
+          <div class="seg" id="morphSeg">
+            <button data-v="0" aria-pressed="true" onclick="setMorph(0)">なし</button>
+            <button data-v="0.1" onclick="setMorph(0.1)">0.1mg</button>
+            <button data-v="0.2" onclick="setMorph(0.2)">0.2mg</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="barrow">
       <button onclick="resetAll()" id="btnReset">↺ リセット</button>
       <button onclick="copySummary()" id="btnCopy">⧉ まとめをコピー</button>
@@ -264,16 +287,21 @@
       <b>Hocking G, Wildsmith JAW.</b> Intrathecal drug spread. <i>Br J Anaesth</i> 2004;93:568-578（制御可能因子は比重・体位・投与量。身長/体重は相関乏しい。容量・濃度の影響は限定的で、効くのは総投与量(mass)）。<br>
       <b>Greene NM.</b> Distribution of local anesthetic solutions within the subarachnoid space. <i>Anesth Analg</i> 1985;64:715-730（比重と体位の相互作用）。<br>
       <b>添付文書（用量の根拠）</b>：マーカイン注脊麻用0.5%高比重／等比重（アストラゼネカ）。0.5%=5&nbsp;mg/mL、通常成人10–20&nbsp;mg(2–4&nbsp;mL)、<b>上限20&nbsp;mg(4&nbsp;mL)</b>。高比重は手術台の傾斜で麻酔範囲をある程度調節可能。<br>
-      <b>容量法プランナーの出典</b>：麻酔科勤務医のお勉強日記「脊髄くも膜下麻酔の投与量の決め方」(knight1112jp.seesaa.net, 2011)。手術部位別基本量＋身長/体重/年齢補正の<b>実践的・経験的な個人の方法</b>（形式的な引用文献はなし）。容量・上限は上記添付文書で裏取り。
+      <b>容量法プランナーの出典</b>：麻酔科勤務医のお勉強日記「脊髄くも膜下麻酔の投与量の決め方」(knight1112jp.seesaa.net, 2011)。手術部位別基本量＋身長/体重/年齢補正の<b>実践的・経験的な個人の方法</b>（形式的な引用文献はなし）。容量・上限は上記添付文書で裏取り。<br>
+      <b>添加薬（オピオイド）の根拠</b>（PubMed）：<br>
+      ・<b>Pöpping DM, et al.</b> Opioids added to local anesthetics for single-shot intrathecal anesthesia. <i>Pain</i> 2012;153:784-793（メタ解析65 RCT。術後鎮痛延長＝モルヒネ+503分・フェンタニル+114分。呼吸抑制 モルヒネ0.05–0.5mgでNNH 38–59、フェンタニル10–40µgは有意増なし。<b>高位への効果は示されず</b>）<a href="https://doi.org/10.1016/j.pain.2011.11.028">DOI</a>。<br>
+      ・<b>Sultan P, et al.</b> Intrathecal Morphine Dose on Outcomes After Cesarean Delivery: A Meta-Analysis. <i>Anesth Analg</i> 2016;123:154-164（HD>100µg は LD 50–100µg より初回鎮痛要求まで+4.5h、ただし掻痒/嘔吐増。低用量で副作用減・鎮痛は同等）<a href="https://doi.org/10.1213/ANE.0000000000001255">DOI</a>。<br>
+      ・<b>Choi DH, et al.</b> Bupivacaine-sparing effect of fentanyl in spinal anesthesia for cesarean delivery. <i>Reg Anesth Pain Med</i> 2000;25:240-245（フェンタニル10µg併用でブピバカイン12→8mgに減量可＝dose-sparing）。<br>
+      <b>要点</b>：髄注オピオイドは<b>ブロック高をほぼ変えず</b>、効くのは<b>持続（特に術後鎮痛）</b>。フェンタニル＝脂溶性で短時間・早期鎮痛、モルヒネ＝水溶性で術後長時間だが遅発性呼吸抑制に注意。
       </p>
     </details>
   </div>
-  <footer>v1.2.0 · 完全オフライン対応 · 教育用・施設プロトコル/添付文書での確認に代わるものではありません</footer>
+  <footer>v1.3.0 · 完全オフライン対応 · 教育用・施設プロトコル/添付文書での確認に代わるものではありません</footer>
 </main>
 
 <script>
-  var DEF={bar:'hyper',pos:'sit2sup',lvl:'L34',dose:2.5,trend:false,preg:false,age:false,iap:false}; // dose in mL (0.5% = 5 mg/mL)
-  var S={bar:'hyper',pos:'sit2sup',lvl:'L34',trend:false,preg:false,age:false,iap:false};
+  var DEF={bar:'hyper',pos:'sit2sup',lvl:'L34',dose:2.5,trend:false,preg:false,age:false,iap:false,fenta:0,morph:0}; // dose in mL (0.5% = 5 mg/mL); fenta µg, morph mg
+  var S={bar:'hyper',pos:'sit2sup',lvl:'L34',trend:false,preg:false,age:false,iap:false,fenta:0,morph:0};
   var lastSummary='';
   function $(id){return document.getElementById(id);}
 
@@ -293,9 +321,12 @@
   function setLvl(v){S.lvl=v;segUpd('lvlSeg',v);calc();}
   function segUpd(id,v){document.querySelectorAll('#'+id+' button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-v')===v);});}
   function tog(k){S[k]=!S[k];$('tg'+k.charAt(0).toUpperCase()+k.slice(1)).setAttribute('aria-pressed',S[k]);calc();}
+  function setFenta(v){S.fenta=v;segUpd('fentaSeg',String(v));calc();}
+  function setMorph(v){S.morph=v;segUpd('morphSeg',String(v));calc();}
 
   function syncUI(){
     segUpd('barSeg',S.bar);segUpd('posSeg',S.pos);segUpd('lvlSeg',S.lvl);
+    segUpd('fentaSeg',String(S.fenta));segUpd('morphSeg',String(S.morph));
     ['trend','preg','age','iap'].forEach(function(k){$('tg'+k.charAt(0).toUpperCase()+k.slice(1)).setAttribute('aria-pressed',S[k]);});
   }
 
@@ -308,10 +339,10 @@
     hypo:  {bar:'hypo', pos:'lateral',lvl:'L34',dose:2.5,trend:false,preg:false,age:false,iap:false}
   };
   function preset(name){var p=PRESETS[name];if(!p)return;
-    S.bar=p.bar;S.pos=p.pos;S.lvl=p.lvl;S.trend=p.trend;S.preg=p.preg;S.age=p.age;S.iap=p.iap;
+    S.bar=p.bar;S.pos=p.pos;S.lvl=p.lvl;S.trend=p.trend;S.preg=p.preg;S.age=p.age;S.iap=p.iap;S.fenta=0;S.morph=0;
     $('dose').value=p.dose;syncUI();calc();}
   function resetAll(){
-    S.bar=DEF.bar;S.pos=DEF.pos;S.lvl=DEF.lvl;S.trend=DEF.trend;S.preg=DEF.preg;S.age=DEF.age;S.iap=DEF.iap;
+    S.bar=DEF.bar;S.pos=DEF.pos;S.lvl=DEF.lvl;S.trend=DEF.trend;S.preg=DEF.preg;S.age=DEF.age;S.iap=DEF.iap;S.fenta=DEF.fenta;S.morph=DEF.morph;
     $('dose').value=DEF.dose;syncUI();calc();
     flash('btnReset','↺ リセット');
   }
@@ -335,6 +366,10 @@
   var POSLABEL={saddle:'座位維持(サドル)',sit2sup:'座位→仰臥位',supine:'仰臥位',lateral:'側臥位'};
 
   function mgFmt(mg){ return (Math.round(mg*10)%10===0) ? mg.toFixed(0) : mg.toFixed(1); }
+  function hmFmt(lo,hi){ // minutes -> "X–Y 分" or "X–Y 時間"
+    if(hi>=180){ var f=function(m){return (m/60).toFixed(1).replace(/\.0$/,'');}; return f(lo)+'–'+f(hi)+' 時間'; }
+    return Math.round(lo)+'–'+Math.round(hi)+' 分';
+  }
 
   function calc(){
     var ml=Number($('dose').value);               // 投与量は mL（0.5%マーカイン = 5 mg/mL）
@@ -354,6 +389,20 @@
     var dLo=Math.round(70+(mg-10)*6), dHi=dLo+50;
     if(S.bar==='iso'){dLo+=20;dHi+=20;}
 
+    // 髄腔内オピオイド添加 — 高位(ピーク)はほぼ不変、効くのは持続(特に術後鎮痛)
+    // Pöpping 2012 Pain: 術後鎮痛 モルヒネ+503分(≈8h)・フェンタニル+114分(≈2h)。Sultan 2016: 帝切HD>LDで+4.5h。
+    var fenta=S.fenta, morph=S.morph;
+    var aLo, aHi, aSrc;
+    if(morph>0){
+      if(morph>=0.2){ aLo=16*60; aHi=24*60; } else { aLo=12*60; aHi=18*60; }
+      aSrc='モルヒネ主体';
+    } else if(fenta>0){
+      aLo=dLo+60; aHi=dHi+168;            // Pöpping 95%CI +60〜168分
+      aSrc='＋フェンタニル';
+    } else {
+      aLo=dLo; aHi=dHi; aSrc='局所麻酔のみ';
+    }
+
     var pIdx=Math.round(peak);
     $('peakLvl').innerHTML = LV[pIdx] + (LAND[pIdx]?' <small>('+LAND[pIdx]+')</small>':'');
     $('bandTxt').textContent='不確実性帯：'+LV[Math.round(lo)]+' 〜 '+LV[Math.round(hi)]+'（±'+band+'分節）';
@@ -366,7 +415,8 @@
       kv('臍 T10', reach(12)) +
       kv('剣状突起 T6', reach(16)) +
       kv('乳頭 T4', reach(18)) +
-      '<div class="k"><span class="l">推定持続(手術麻酔)</span><span class="n">'+dLo+'–'+dHi+' 分</span></div>';
+      '<div class="k"><span class="l">推定持続(手術麻酔)</span><span class="n">'+dLo+'–'+dHi+' 分</span></div>' +
+      '<div class="k"><span class="l">術後鎮痛の推定持続<br>('+aSrc+')</span><span class="n">'+hmFmt(aLo,aHi)+'</span></div>';
 
     // notes
     var n=[];
@@ -379,6 +429,8 @@
     if(S.age) n.push('<b>高齢</b>：CSF容量減少傾向で高位化しやすい。');
     if(S.iap) n.push('<b>腹腔内圧↑/肥満</b>：CSF容量減少で高位化しやすい。');
     n.push('投与量は主に<b>持続時間と濃度(密度)</b>を規定し、最終高さへの影響は限定的（Hocking 2004）。');
+    if(fenta>0) n.push('<b>フェンタニル髄注 '+fenta+'µg</b>：<b>ブロック高はほぼ不変</b>（脂溶性で頭側拡散は最小）。ブロックの質を改善し、<b>術後鎮痛を約1–2時間延長</b>。LA減量(dose-sparing)も可能。掻痒に注意（Pöpping 2012 / Choi 2000）。');
+    if(morph>0) n.push({c:' warn', t:'<b>モルヒネ髄注 '+morph+'mg</b>：<b>ブロック高・手術麻酔の持続はほぼ不変</b>。<b>術後鎮痛を半日〜1日延長</b>。緩徐な頭側CSF移動による<b>遅発性呼吸抑制(〜6–12h)に注意・モニタリング</b>、掻痒/悪心/尿閉。低用量(0.1mg)で副作用減・鎮痛は同等（Pöpping 2012 / Sultan 2016）。'});
     var hi_warn = peak>=18 ? ' warn' : '';
     n.push({c:hi_warn, t:'高位ブロックでは<b>低血圧・徐脈・呼吸抑制</b>に備える（T4で心臓交感神経、C3-5で横隔膜）。'});
     $('notes').innerHTML = n.map(function(x){
@@ -391,9 +443,11 @@
       '【脊麻ブロック高シミュレータ（教育用）】\n'+
       '比重: '+BARLABEL[S.bar]+' / 体位: '+POSLABEL[S.pos]+' / 穿刺: '+S.lvl+' / 投与量: '+ml.toFixed(1)+' mL ('+mgFmt(mg)+' mg, 0.5%マーカイン)\n'+
       '修飾: '+([S.trend?'頭低位':'',S.preg?'妊娠':'',S.age?'高齢':'',S.iap?'腹腔内圧↑/肥満':''].filter(Boolean).join('・')||'なし')+'\n'+
+      '添加薬: '+([fenta?('フェンタニル'+fenta+'µg'):'',morph?('モルヒネ'+morph+'mg'):''].filter(Boolean).join('・')||'なし')+'\n'+
       '推定ピーク: '+LV[pIdx]+(LAND[pIdx]?'('+LAND[pIdx]+')':'')+'　不確実性帯: '+LV[Math.round(lo)]+'〜'+LV[Math.round(hi)]+'（±'+band+'分節）\n'+
       '推定持続(手術麻酔): '+dLo+'–'+dHi+' 分\n'+
-      '※予測器ではなく教育用モデル。最終高はCSF容量で大きく変動（Carpenter 1998）。';
+      '術後鎮痛の推定持続: '+hmFmt(aLo,aHi)+'（'+aSrc+'）\n'+
+      '※予測器ではなく教育用モデル。オピオイド添加は高位をほぼ変えず持続(特に術後鎮痛)に作用。最終高はCSF容量で大きく変動（Carpenter 1998）。';
 
     draw(peak,lo,hi,pIdx);
   }
