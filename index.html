@@ -135,6 +135,20 @@
   details.refbox[open] summary::before{content:"▾ "}
   .ref{font-size:11px;color:var(--dim);line-height:1.75}
   .ref b{color:var(--muted)}
+  .ref a,.refitem a{color:var(--cyan);text-decoration:none}
+  .ref a:hover,.refitem a:hover{text-decoration:underline}
+  .reflead{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:13px}
+  .reflist{display:flex;flex-direction:column;gap:10px}
+  .refgrp{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);font-weight:700;margin:8px 0 1px}
+  .refgrp:first-child{margin-top:0}
+  .refitem{background:var(--elev);border:1px solid var(--line);border-radius:11px;padding:11px 13px}
+  .refitem .rc{font-size:12.5px;color:var(--txt);font-weight:700;line-height:1.45}
+  .refitem .rmeta{font-size:10.5px;color:var(--dim);font-family:var(--mono);margin-top:2px}
+  .refitem .rrow{font-size:11.5px;color:var(--muted);line-height:1.55;margin-top:7px;display:flex;gap:7px}
+  .refitem .rrow .tg{flex:0 0 auto;font-size:9.5px;font-weight:700;letter-spacing:.03em;border-radius:5px;padding:2px 6px;height:fit-content;margin-top:1px}
+  .refitem .rrow .tg.why{background:#241a3a;color:#cbb8f5;border:1px solid #3a2d63}
+  .refitem .rrow .tg.sum{background:#10243a;color:#8ec5ff;border:1px solid #1f3a5c}
+  .refitem .rrow b{color:var(--txt)}
   .disc{background:#3a1d1d;border:1px solid #7f3030;border-radius:11px;padding:12px 14px;font-size:12px;color:#ffd9d9;line-height:1.65}
   .disc b{color:#ffb3b3}
   footer{text-align:center;font-size:10.5px;color:var(--dim);font-family:var(--mono);padding:6px 0 0}
@@ -254,7 +268,7 @@
       <b>体重補正</b>：標準体重(BMI22)超で10kgあたり−0.1mL（肥満で減）。<br>
       <b>フェンタニル併用(帝切)</b>：血圧低下軽減のため×2/3。<br>
       <b>上限</b>：添付文書の4mL(20mg)で頭打ち。<br>
-      出典：麻酔科勤務医のお勉強日記「脊髄くも膜下麻酔の投与量の決め方」(2011)。本アプリでは記載の計算例3例と一致することを確認のうえ実装。
+      出典・根拠（理由＋要約＋リンク）は最下部の <a href="#refs">▸ 参考文献</a> を参照。本アプリは出典記載の計算例3例と一致を確認のうえ実装。
       </p>
     </details>
   </div>
@@ -274,20 +288,87 @@
       </div>
     </div>
     <details class="refbox"><summary>エビデンス</summary>
-      <p class="ref">
-      <b>Carpenter RL, et al.</b> Lumbosacral CSF volume is the primary determinant of sensory block extent and duration during spinal anesthesia. <i>Anesthesiology</i> 1998;89:24-29（CSF容量が最大の規定因子＝個別予測が困難な理由）。<br>
-      <b>Hocking G, Wildsmith JAW.</b> Intrathecal drug spread. <i>Br J Anaesth</i> 2004;93:568-578（制御可能因子は比重・体位・投与量。身長/体重は相関乏しい。容量・濃度の影響は限定的で、効くのは総投与量(mass)）。<br>
-      <b>Greene NM.</b> Distribution of local anesthetic solutions within the subarachnoid space. <i>Anesth Analg</i> 1985;64:715-730（比重と体位の相互作用）。<br>
-      <b>添付文書（用量の根拠）</b>：マーカイン注脊麻用0.5%高比重／等比重（アストラゼネカ）。0.5%=5&nbsp;mg/mL、通常成人10–20&nbsp;mg(2–4&nbsp;mL)、<b>上限20&nbsp;mg(4&nbsp;mL)</b>。高比重は手術台の傾斜で麻酔範囲をある程度調節可能。<br>
-      <b>容量法プランナーの出典</b>：麻酔科勤務医のお勉強日記「脊髄くも膜下麻酔の投与量の決め方」(knight1112jp.seesaa.net, 2011)。手術部位別基本量＋身長/体重/年齢補正の<b>実践的・経験的な個人の方法</b>（形式的な引用文献はなし）。容量・上限は上記添付文書で裏取り。<br>
-      <b>添加薬（オピオイド）の根拠</b>（PubMed）：<br>
-      ・<b>Pöpping DM, et al.</b> Opioids added to local anesthetics for single-shot intrathecal anesthesia. <i>Pain</i> 2012;153:784-793（メタ解析65 RCT。術後鎮痛延長＝モルヒネ+503分・フェンタニル+114分。呼吸抑制 モルヒネ0.05–0.5mgでNNH 38–59、フェンタニル10–40µgは有意増なし。<b>高位への効果は示されず</b>）<a href="https://doi.org/10.1016/j.pain.2011.11.028">DOI</a>。<br>
-      ・<b>Sultan P, et al.</b> Intrathecal Morphine Dose on Outcomes After Cesarean Delivery: A Meta-Analysis. <i>Anesth Analg</i> 2016;123:154-164（HD>100µg は LD 50–100µg より初回鎮痛要求まで+4.5h、ただし掻痒/嘔吐増。低用量で副作用減・鎮痛は同等）<a href="https://doi.org/10.1213/ANE.0000000000001255">DOI</a>。<br>
-      ・<b>Choi DH, et al.</b> Bupivacaine-sparing effect of fentanyl in spinal anesthesia for cesarean delivery. <i>Reg Anesth Pain Med</i> 2000;25:240-245（フェンタニル10µg併用でブピバカイン12→8mgに減量可＝dose-sparing）。<br>
-      <b>要点</b>：髄注オピオイドは<b>ブロック高をほぼ変えず</b>、効くのは<b>持続（特に術後鎮痛）</b>。フェンタニル＝脂溶性で短時間・早期鎮痛、モルヒネ＝水溶性で術後長時間だが遅発性呼吸抑制に注意。
-      </p>
+      <p class="ref">本ツールの各挙動の根拠（<b>Carpenter 1998 / Hocking 2004 / Greene 1985</b>、用量＝<b>Axelsson 1981 / De Simone 1993</b>、添加薬＝<b>Pöpping 2012 / Sultan 2016 / Choi 2000</b> ほか）は、<b>「なぜ使ったか」＋要約＋リンク</b>つきで最下部の <a href="#refs">▸ 参考文献</a> にまとめてあります。</p>
     </details>
   </div>
+
+  <div class="card" id="refs">
+    <h3>参考文献（使用した根拠と理由） <span class="hl"></span></h3>
+    <p class="reflead">各文献に <b style="color:#cbb8f5">使った理由（アプリのどこを支えるか）</b> と <b style="color:#8ec5ff">要約</b> を付けています。タイトルのリンクから原典/PubMedを参照できます。</p>
+    <div class="reflist">
+
+      <div class="refgrp">A. ブロック高と薬液拡散の原理</div>
+      <div class="refitem">
+        <div class="rc"><a href="https://pubmed.ncbi.nlm.nih.gov/9667290/" target="_blank" rel="noopener">Carpenter RL, et al. Lumbosacral cerebrospinal fluid volume is the primary determinant of sensory block extent and duration during spinal anesthesia.</a></div>
+        <div class="rmeta">Anesthesiology 1998;89:24-29 · PubMed</div>
+        <div class="rrow"><span class="tg why">理由</span><span>本ツールを<b>「予測器ではなく教育用」</b>とし、結果に<b>不確実性帯</b>を付けた根拠。なぜ個別予測が困難かを説明。</div>
+        <div class="rrow"><span class="tg sum">要約</span><span>腰仙部CSF容量が感覚遮断の広がり・持続の<b>最大の規定因子</b>。CSF容量は臨床的に測定不能で、同一手技でも数分節ばらつく。</span></div>
+      </div>
+      <div class="refitem">
+        <div class="rc"><a href="https://pubmed.ncbi.nlm.nih.gov/15220175/" target="_blank" rel="noopener">Hocking G, Wildsmith JAW. Intrathecal drug spread.</a></div>
+        <div class="rmeta">Br J Anaesth 2004;93:568-578 · PubMed</div>
+        <div class="rrow"><span class="tg why">理由</span><span>制御可能因子＝<b>比重・体位・投与量</b>という枠組み。<b>投与量スライダーで高さがあまり動かない</b>挙動（効くのは総mass、容量/濃度の寄与は小）の根拠。</span></div>
+        <div class="rrow"><span class="tg sum">要約</span><span>くも膜下腔の薬液拡散の総説。効くのは総投与量(mass)で、容量・濃度の影響は限定的。身長・体重との相関は乏しい。</span></div>
+      </div>
+      <div class="refitem">
+        <div class="rc"><a href="https://pubmed.ncbi.nlm.nih.gov/3893222/" target="_blank" rel="noopener">Greene NM. Distribution of local anesthetic solutions within the subarachnoid space.</a></div>
+        <div class="rmeta">Anesth Analg 1985;64:715-730 · PubMed</div>
+        <div class="rrow"><span class="tg why">理由</span><span><b>比重 × 体位</b>の相互作用＝体位セレクタ（座位/側臥位/仰臥位化）の挙動の根拠。</span></div>
+        <div class="rrow"><span class="tg sum">要約</span><span>くも膜下腔での局所麻酔薬分布を体系化した古典的総説。比重と体位がどう拡散を決めるかを整理。</span></div>
+      </div>
+
+      <div class="refgrp">B. 投与量と高さ（容量を増やしても高さが変わりにくい根拠）</div>
+      <div class="refitem">
+        <div class="rc"><a href="https://pubmed.ncbi.nlm.nih.gov/7034758/" target="_blank" rel="noopener">Chambers WA, et al. Spinal anaesthesia with hyperbaric bupivacaine: effects of concentration and volume administered.</a></div>
+        <div class="rmeta">Br J Anaesth 1982;54:75-80 · PubMed</div>
+        <div class="rrow"><span class="tg why">理由</span><span>「<b>0.5%では容量(2→4 mL)を増やしても広がりは変わらない</b>」という、まさに本アプリで使う0.5%マーカインの投与量挙動の直接根拠。</span></div>
+        <div class="rrow"><span class="tg sum">要約</span><span>0.5%高比重(8%ブドウ糖)を<b>2/3/4 mL</b>で比較し、<b>容量を増やしても感覚遮断の広がりは不変</b>（容量依存になるのは0.75%のみ）。増量は主に<b>持続を延長</b>。</span></div>
+      </div>
+      <div class="refitem">
+        <div class="rc"><a href="https://pubmed.ncbi.nlm.nih.gov/7605770/" target="_blank" rel="noopener">De Simone CA, et al. Spinal anesthesia for cesarean delivery: a comparison of two doses of hyperbaric bupivacaine.</a></div>
+        <div class="rmeta">Reg Anesth 1995;20:90-94 · PubMed</div>
+        <div class="rrow"><span class="tg why">理由</span><span>増量しても高さは<b>わずか＋約2分節</b>で、主に<b>密度・持続</b>が増える、という投与量スライダーの挙動の根拠。</span></div>
+        <div class="rrow"><span class="tg sum">要約</span><span>12 vs 15 mgで最高位差は平均<b>+2.2分節のみ</b>。15 mgはより濃く・長い（T10退縮 140→162分）。<b>高比重は胸椎後弯にプール</b>するため頭側は頭打ち。</span></div>
+      </div>
+
+      <div class="refgrp">C. 用量設定（添付文書・容量法プランナー）</div>
+      <div class="refitem">
+        <div class="rc"><a href="https://medical.nikkeibp.co.jp/inc/all/drugdic/prd/12/1214403A4025.html" target="_blank" rel="noopener">マーカイン注脊麻用0.5%高比重／等比重（アストラゼネカ）添付文書</a></div>
+        <div class="rmeta">医薬品添付文書 · 用量の一次根拠</div>
+        <div class="rrow"><span class="tg why">理由</span><span><b>mL/mg併記</b>と用量プランナーの<b>上限4 mL(20 mg)</b>の一次根拠。</span></div>
+        <div class="rrow"><span class="tg sum">要約</span><span>0.5%＝5 mg/mL、通常成人 10–20 mg(2–4 mL)、<b>上限20 mg(4 mL)</b>。高比重は手術台の傾斜で麻酔範囲を調節可・発現早く持続短い。</span></div>
+      </div>
+      <div class="refitem">
+        <div class="rc"><a href="https://knight1112jp.seesaa.net/article/201107article_189.html" target="_blank" rel="noopener">麻酔科勤務医のお勉強日記「脊髄くも膜下麻酔の投与量の決め方」(2011)</a></div>
+        <div class="rmeta">個人ブログ · 容量法プランナーの出典</div>
+        <div class="rrow"><span class="tg why">理由</span><span>用量プランナーの<b>容量法</b>（手術部位別の基本量＋身長/体重/年齢補正）の元ネタ。</span></div>
+        <div class="rrow"><span class="tg sum">要約</span><span><b>実践的・経験的な個人の方法</b>（形式的な引用文献なし）。本アプリは記載の計算例3例(2.3/2.7/2.3 mL)と一致を確認し、容量・上限は上記添付文書で裏取り。</span></div>
+      </div>
+
+      <div class="refgrp">D. 添加薬（髄腔内オピオイド）</div>
+      <div class="refitem">
+        <div class="rc"><a href="https://pubmed.ncbi.nlm.nih.gov/22230804/" target="_blank" rel="noopener">Pöpping DM, et al. Opioids added to local anesthetics for single-shot intrathecal anesthesia: a meta-analysis of randomized trials.</a></div>
+        <div class="rmeta">Pain 2012;153:784-793 · PubMed（doi:10.1016/j.pain.2011.11.028）</div>
+        <div class="rrow"><span class="tg why">理由</span><span>フェンタニル/モルヒネ添加時の<b>術後鎮痛の延長量</b>・<b>呼吸抑制リスク</b>、そして<b>「高位は変えない」</b>という表示の根拠。</span></div>
+        <div class="rrow"><span class="tg sum">要約</span><span>65 RCT・3338例。術後鎮痛＝<b>モルヒネ+503分／フェンタニル+114分</b>。呼吸抑制：モルヒネ0.05–0.5 mgでNNH 38–59、フェンタニル10–40µgは有意増なし。高位への効果は示されず。</span></div>
+      </div>
+      <div class="refitem">
+        <div class="rc"><a href="https://pubmed.ncbi.nlm.nih.gov/27089000/" target="_blank" rel="noopener">Sultan P, et al. The effect of intrathecal morphine dose on outcomes after elective cesarean delivery: a meta-analysis.</a></div>
+        <div class="rmeta">Anesth Analg 2016;123:154-164 · PubMed（doi:10.1213/ANE.0000000000001255）</div>
+        <div class="rrow"><span class="tg why">理由</span><span>モルヒネ<b>0.1 vs 0.2 mg</b>の効果差と副作用＝モルヒネ用量セレクタの根拠。</span></div>
+        <div class="rrow"><span class="tg sum">要約</span><span>高用量(>100µg)は低用量(50–100µg)より初回鎮痛要求まで<b>+4.5時間</b>だが掻痒/嘔吐が増加。<b>低用量で副作用減・鎮痛は同等</b>。</span></div>
+      </div>
+      <div class="refitem">
+        <div class="rc"><a href="https://pubmed.ncbi.nlm.nih.gov/10834777/" target="_blank" rel="noopener">Choi DH, et al. Bupivacaine-sparing effect of fentanyl in spinal anesthesia for cesarean delivery.</a></div>
+        <div class="rmeta">Reg Anesth Pain Med 2000;25:240-245 · PubMed（doi:10.1016/s1098-7339(00)90005-1）</div>
+        <div class="rrow"><span class="tg why">理由</span><span>フェンタニルの<b>dose-sparing</b>（プランナーの帝切×2/3、ブロックの質改善）の根拠。</span></div>
+        <div class="rrow"><span class="tg sum">要約</span><span>フェンタニル10µg併用で、必要なブピバカインを<b>12→8 mgに減量可能</b>（高位ブロックを避けつつ良好な手術麻酔）。</span></div>
+      </div>
+
+    </div>
+    <p class="reflead" style="margin:13px 0 0">⚠ 文献値は<b>母集団の平均的傾向</b>であり、個々の患者では大きくばらつきます（特にCSF容量）。本ツールは教育用で、施設プロトコル・添付文書・最新ガイドラインでの確認に代わるものではありません。</p>
+  </div>
+
   <footer>
     <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap">
       <button class="updbtn" id="btnUpd" onclick="checkUpdate()">↻ 最新版に更新</button>
@@ -563,7 +644,7 @@
   plan();
 
   // ---- PWA: version display + service worker + manual update ----
-  var VERSION='1.4.1';
+  var VERSION='1.5.0';
   $('verChip').textContent='v'+VERSION;
   $('verLabel').textContent=VERSION;
 
