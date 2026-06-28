@@ -34,8 +34,16 @@
   .brand{display:flex;flex-direction:column;line-height:1.15;min-width:0}
   .brand b{font-size:15px;letter-spacing:.01em}
   .brand span{font-size:10.5px;color:var(--dim);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .off{margin-left:auto;flex:0 0 auto;font-size:10px;font-family:var(--mono);color:var(--dim);border:1px solid var(--line);border-radius:20px;padding:3px 9px}
+  .hdright{margin-left:auto;flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+  .ver{font-size:11px;font-family:var(--mono);color:var(--violet);border:1px solid #3a2d63;background:#160f2e;border-radius:20px;padding:2px 9px;font-variant-numeric:tabular-nums}
+  .off{font-size:9.5px;font-family:var(--mono);color:var(--dim);border:1px solid var(--line);border-radius:20px;padding:2px 8px}
   .off.ready{color:var(--green);border-color:#244a3a}
+  .updbtn{background:var(--elev);border:1px solid var(--line);color:var(--violet);font-family:var(--ui);font-size:12px;font-weight:600;padding:8px 14px;border-radius:9px;cursor:pointer;min-height:40px}
+  .updbtn:hover{border-color:var(--violet)}
+  .updbtn.hot{background:var(--violet);color:#1b0f3d;border-color:var(--violet);animation:pulse 1.6s ease-in-out infinite}
+  .updbtn.done{border-color:var(--green);color:var(--green)}
+  .updmsg{font-size:11px;color:var(--muted);font-family:var(--mono)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
   main{padding-top:14px}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:13px}
   .card h3{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:11px;display:flex;align-items:center;gap:8px}
@@ -137,7 +145,10 @@
 <header><div class="wrap"><div class="hd">
   <div class="badge">脊</div>
   <div class="brand"><b>脊髄くも膜下麻酔 ブロック高シミュレータ</b><span>GOTO ANESTHESIA TOOLKIT · SPINAL BLOCK（教育用）</span></div>
-  <span class="off" id="offBadge">offline…</span>
+  <div class="hdright">
+    <span class="ver" id="verChip">v—</span>
+    <span class="off" id="offBadge">offline…</span>
+  </div>
 </div></div></header>
 
 <main class="wrap">
@@ -277,7 +288,13 @@
       </p>
     </details>
   </div>
-  <footer>v1.4.0 · 完全オフライン対応 · 教育用・施設プロトコル/添付文書での確認に代わるものではありません</footer>
+  <footer>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap">
+      <button class="updbtn" id="btnUpd" onclick="checkUpdate()">↻ 最新版に更新</button>
+      <span class="updmsg" id="updMsg"></span>
+    </div>
+    <div style="margin-top:9px">バージョン v<span id="verLabel">—</span> · 完全オフライン対応 · 教育用・施設プロトコル/添付文書での確認に代わるものではありません</div>
+  </footer>
 </main>
 
 <script>
@@ -545,14 +562,56 @@
   calc();
   plan();
 
-  // ---- PWA: register service worker (full offline) ----
+  // ---- PWA: version display + service worker + manual update ----
+  var VERSION='1.4.1';
+  $('verChip').textContent='v'+VERSION;
+  $('verLabel').textContent=VERSION;
+
+  var swReg=null, reloading=false;
+  function updMsg(t){ $('updMsg').textContent=t||''; }
+  function showNewVer(){ var b=$('btnUpd'); b.textContent='↻ 新しい版に更新'; b.classList.add('hot'); updMsg('新しい版があります'); }
+  function doReload(){ if(reloading) return; reloading=true; location.reload(); }
+  function hardRefresh(){ // キャッシュを消して確実に最新を取得（オンライン時）
+    if(reloading) return; reloading=true;
+    var go=function(){ location.reload(); };
+    if(window.caches){ caches.keys().then(function(ks){ return Promise.all(ks.map(function(k){return caches.delete(k);})); }).then(go, go); }
+    else go();
+  }
+
   if('serviceWorker' in navigator){
-    window.addEventListener('load',function(){
-      navigator.serviceWorker.register('sw.js').then(function(){
-        var b=$('offBadge');b.textContent='✓ オフライン対応';b.classList.add('ready');
+    // 新SWが有効化されたら自動で1回だけリロード（iOSホーム画面PWA対策）。初回登録の取得では無視。
+    var hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', function(){
+      if(!hadController){ hadController=true; return; }
+      doReload();
+    });
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').then(function(reg){
+        swReg=reg;
+        var b=$('offBadge'); b.textContent='✓ オフライン対応'; b.classList.add('ready');
+        reg.addEventListener('updatefound', function(){
+          var nw=reg.installing; if(!nw) return;
+          nw.addEventListener('statechange', function(){
+            if(nw.state==='installed' && navigator.serviceWorker.controller){ showNewVer(); }
+          });
+        });
+        if(navigator.onLine){ reg.update().catch(function(){}); } // 起動時に静かに更新チェック
       }).catch(function(){ $('offBadge').textContent=''; });
     });
   } else { $('offBadge').textContent=''; }
+
+  // 手動更新ボタン
+  function checkUpdate(){
+    if(!navigator.onLine){ updMsg('オフライン：電波に接続してから更新してください'); return; }
+    updMsg('確認中…'); var b=$('btnUpd'); b.classList.remove('hot');
+    if(swReg && swReg.update){
+      swReg.update().then(function(){
+        // 新版があれば updatefound→activate→controllerchange で自動リロード。
+        // 切り替わらなければ（＝既に最新 等）一定時間後に強制リフレッシュ。
+        setTimeout(function(){ if(!reloading) hardRefresh(); }, 1500);
+      }).catch(hardRefresh);
+    } else { hardRefresh(); }
+  }
 </script>
 </body>
 </html>
