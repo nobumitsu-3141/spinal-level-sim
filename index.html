@@ -41,13 +41,6 @@
   .card h3{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:11px;display:flex;align-items:center;gap:8px}
   .card h3 .hl{flex:1;height:1px;background:var(--line)}
 
-  .presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px}
-  .pz{flex:1 1 auto;min-width:120px;background:var(--elev);border:1px solid var(--line);color:var(--txt);border-radius:10px;
-    padding:9px 11px;cursor:pointer;text-align:left;font-family:var(--ui)}
-  .pz:active{transform:scale(.985)}
-  .pz b{display:block;font-size:13px;font-weight:700}
-  .pz small{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;font-family:var(--mono)}
-  .pz:hover{border-color:var(--violet)}
 
   .grp{margin-bottom:13px}
   .grp:last-child{margin-bottom:0}
@@ -153,27 +146,19 @@
   </div>
 
   <div class="card">
-    <h3>教育プリセット <span class="hl"></span></h3>
-    <div class="presets" id="presets">
-      <button class="pz" onclick="preset('saddle')"><b>サドル（会陰・低位）</b><small>高比重・座位維持・少量</small></button>
-      <button class="pz" onclick="preset('std')"><b>標準（下肢・会陰）</b><small>高比重・座位→仰臥位</small></button>
-      <button class="pz" onclick="preset('high')"><b>高位を狙う</b><small>高比重・仰臥位・頭低位</small></button>
-      <button class="pz" onclick="preset('hypo')"><b>低比重（非依存部へ）</b><small>低比重・側臥位</small></button>
-    </div>
-
+    <h3>設定 <span class="hl"></span></h3>
     <div class="grp"><div class="lab"><span class="tag">①</span> 比重（最も重要な制御因子）</div>
       <div class="seg" id="barSeg">
         <button data-v="hyper" aria-pressed="true" onclick="setBar('hyper')">高比重</button>
         <button data-v="iso" onclick="setBar('iso')">等比重</button>
-        <button data-v="hypo" onclick="setBar('hypo')">低比重</button>
       </div>
     </div>
     <div class="grp"><div class="lab"><span class="tag">②</span> 投与時〜直後の体位</div>
       <div class="seg" id="posSeg">
         <button data-v="saddle" onclick="setPos('saddle')">座位維持(サドル)</button>
         <button data-v="sit2sup" aria-pressed="true" onclick="setPos('sit2sup')">座位→仰臥位</button>
-        <button data-v="supine" onclick="setPos('supine')">仰臥位</button>
         <button data-v="lateral" onclick="setPos('lateral')">側臥位</button>
+        <button data-v="lat2sup" onclick="setPos('lat2sup')">側臥位→仰臥位</button>
       </div>
     </div>
     <div class="grp"><div class="lab"><span class="tag">③</span> 穿刺間隙</div>
@@ -197,20 +182,16 @@
       </div>
     </div>
     <div class="grp"><div class="lab"><span class="tag">⑥</span> 添加薬（髄腔内オピオイド）</div>
-      <div class="adjrow">
-        <div class="adj"><span class="adjlab"><b>フェンタニル</b>（脂溶性）</span>
-          <div class="seg" id="fentaSeg">
-            <button data-v="0" aria-pressed="true" onclick="setFenta(0)">なし</button>
-            <button data-v="10" onclick="setFenta(10)">10µg</button>
-            <button data-v="25" onclick="setFenta(25)">25µg</button>
-          </div>
-        </div>
-        <div class="adj"><span class="adjlab"><b>モルヒネ</b>（水溶性）</span>
-          <div class="seg" id="morphSeg">
-            <button data-v="0" aria-pressed="true" onclick="setMorph(0)">なし</button>
-            <button data-v="0.1" onclick="setMorph(0.1)">0.1mg</button>
-            <button data-v="0.2" onclick="setMorph(0.2)">0.2mg</button>
-          </div>
+      <div class="sl" style="margin-bottom:14px">
+        <div class="top"><label for="fenta"><b>フェンタニル</b>（脂溶性・髄注）</label><span class="v"><span id="fentaV">0</span><small>µg</small></span></div>
+        <input id="fenta" type="range" min="0" max="25" step="1" value="0" oninput="onFenta()">
+        <div class="hint">0＝なし（一般に10–25µg）。ブロック高はほぼ不変・術後鎮痛を延長（Pöpping 2012）。</div>
+      </div>
+      <div class="adj"><span class="adjlab"><b>モルヒネ</b>（水溶性・髄注）</span>
+        <div class="seg" id="morphSeg">
+          <button data-v="0" aria-pressed="true" onclick="setMorph(0)">なし</button>
+          <button data-v="0.1" onclick="setMorph(0.1)">0.1mg</button>
+          <button data-v="0.2" onclick="setMorph(0.2)">0.2mg</button>
         </div>
       </div>
     </div>
@@ -296,7 +277,7 @@
       </p>
     </details>
   </div>
-  <footer>v1.3.0 · 完全オフライン対応 · 教育用・施設プロトコル/添付文書での確認に代わるものではありません</footer>
+  <footer>v1.4.0 · 完全オフライン対応 · 教育用・施設プロトコル/添付文書での確認に代わるものではありません</footer>
 </main>
 
 <script>
@@ -311,9 +292,8 @@
 
   // reference peak index at 12.5 mg, by baricity × position (dominant factor)
   var BASE={
-    hyper:{saddle:4, sit2sup:16, supine:15, lateral:14},
-    iso:  {saddle:8, sit2sup:13, supine:13, lateral:12},
-    hypo: {saddle:14,sit2sup:16, supine:16, lateral:14}
+    hyper:{saddle:4, sit2sup:16, lateral:14, lat2sup:15},
+    iso:  {saddle:8, sit2sup:13, lateral:12, lat2sup:13}
   };
 
   function setBar(v){S.bar=v;segUpd('barSeg',v);calc();}
@@ -321,26 +301,15 @@
   function setLvl(v){S.lvl=v;segUpd('lvlSeg',v);calc();}
   function segUpd(id,v){document.querySelectorAll('#'+id+' button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-v')===v);});}
   function tog(k){S[k]=!S[k];$('tg'+k.charAt(0).toUpperCase()+k.slice(1)).setAttribute('aria-pressed',S[k]);calc();}
-  function setFenta(v){S.fenta=v;segUpd('fentaSeg',String(v));calc();}
+  function onFenta(){S.fenta=Number($('fenta').value);$('fentaV').textContent=S.fenta;calc();}
   function setMorph(v){S.morph=v;segUpd('morphSeg',String(v));calc();}
 
   function syncUI(){
     segUpd('barSeg',S.bar);segUpd('posSeg',S.pos);segUpd('lvlSeg',S.lvl);
-    segUpd('fentaSeg',String(S.fenta));segUpd('morphSeg',String(S.morph));
+    $('fenta').value=S.fenta;$('fentaV').textContent=S.fenta;segUpd('morphSeg',String(S.morph));
     ['trend','preg','age','iap'].forEach(function(k){$('tg'+k.charAt(0).toUpperCase()+k.slice(1)).setAttribute('aria-pressed',S[k]);});
   }
 
-  // educational presets — only configure the existing controls to demonstrate the
-  // baricity × position × dose interaction the model already teaches (no new claims).
-  var PRESETS={ // dose in mL
-    saddle:{bar:'hyper',pos:'saddle',lvl:'L34',dose:1.5,trend:false,preg:false,age:false,iap:false},
-    std:   {bar:'hyper',pos:'sit2sup',lvl:'L34',dose:2.5,trend:false,preg:false,age:false,iap:false},
-    high:  {bar:'hyper',pos:'supine',lvl:'L23',dose:3.0,trend:true, preg:false,age:false,iap:false},
-    hypo:  {bar:'hypo', pos:'lateral',lvl:'L34',dose:2.5,trend:false,preg:false,age:false,iap:false}
-  };
-  function preset(name){var p=PRESETS[name];if(!p)return;
-    S.bar=p.bar;S.pos=p.pos;S.lvl=p.lvl;S.trend=p.trend;S.preg=p.preg;S.age=p.age;S.iap=p.iap;S.fenta=0;S.morph=0;
-    $('dose').value=p.dose;syncUI();calc();}
   function resetAll(){
     S.bar=DEF.bar;S.pos=DEF.pos;S.lvl=DEF.lvl;S.trend=DEF.trend;S.preg=DEF.preg;S.age=DEF.age;S.iap=DEF.iap;S.fenta=DEF.fenta;S.morph=DEF.morph;
     $('dose').value=DEF.dose;syncUI();calc();
@@ -363,7 +332,7 @@
   function clamp(x,a,b){return Math.max(a,Math.min(b,x));}
 
   var BARLABEL={hyper:'高比重',iso:'等比重',hypo:'低比重'};
-  var POSLABEL={saddle:'座位維持(サドル)',sit2sup:'座位→仰臥位',supine:'仰臥位',lateral:'側臥位'};
+  var POSLABEL={saddle:'座位維持(サドル)',sit2sup:'座位→仰臥位',lateral:'側臥位',lat2sup:'側臥位→仰臥位'};
 
   function mgFmt(mg){ return (Math.round(mg*10)%10===0) ? mg.toFixed(0) : mg.toFixed(1); }
   function hmFmt(lo,hi){ // minutes -> "X–Y 分" or "X–Y 時間"
@@ -377,7 +346,7 @@
     $('doseV').textContent=ml.toFixed(1);
     $('doseMg').textContent=mgFmt(mg);
     var base=BASE[S.bar][S.pos];
-    var trend=S.trend ? (S.bar==='hyper'?2 : S.bar==='hypo'?-2 : 1) : 0;
+    var trend=S.trend ? (S.bar==='hyper'?2 : 1) : 0;
     var lvl={L23:1,L34:0,L45:-1}[S.lvl];
     var doseAdj=clamp((mg-12.5)*0.15,-2,2);     // 高さへの影響は限定的（Hocking）
     var mod=(S.preg?2:0)+(S.age?1:0)+(S.iap?1:0);
@@ -420,11 +389,12 @@
 
     // notes
     var n=[];
-    if(S.bar==='hyper') n.push('<b>高比重</b>：重力で<b>低い側</b>へ沈む。体位で頭側進展をコントロール（座位維持＝低位、仰臥位＝胸椎後弯に沿いT4–6へ）。');
+    if(S.bar==='hyper') n.push('<b>高比重</b>：重力で<b>低い側</b>へ沈む。体位で頭側進展をコントロール（座位維持＝低位、仰臥位で胸椎後弯に沿いT4–6へ）。');
     if(S.bar==='iso') n.push('<b>等比重</b>：注入レベル近傍に留まりやすく<b>体位依存が小さい</b>。一般に持続がやや長い傾向。');
-    if(S.bar==='hypo') n.push('<b>低比重</b>：<b>高い側(非依存部)</b>へ上昇。特殊用途(例：ジャックナイフ肛門手術)で体位と逆向きに作用。');
     if(S.pos==='saddle'&&S.bar==='hyper') n.push('座位維持で高比重→<b>サドルブロック</b>（仙骨/会陰中心）。');
-    if(S.trend) n.push('頭低位は高比重の頭側進展を<b>増強</b>（低比重では抑制）。急激な高位ブロックに注意。');
+    if(S.pos==='lateral'&&S.bar==='hyper') n.push('側臥位維持＋高比重→<b>片側性（下側優位）</b>になりやすい。患側を下にすると選択的ブロック。');
+    if(S.pos==='lat2sup') n.push('側臥位で注入後に仰臥位へ→いったん下側に寄った薬液が<b>両側化・頭側へ再分布</b>（高比重で顕著）。');
+    if(S.trend) n.push('頭低位は高比重の頭側進展を<b>増強</b>。急激な高位ブロックに注意。');
     if(S.preg) n.push('<b>妊娠</b>：硬膜外静脈怒張でCSF容量減少→同一量で<b>ブロックが高位化</b>。減量を考慮。');
     if(S.age) n.push('<b>高齢</b>：CSF容量減少傾向で高位化しやすい。');
     if(S.iap) n.push('<b>腹腔内圧↑/肥満</b>：CSF容量減少で高位化しやすい。');
