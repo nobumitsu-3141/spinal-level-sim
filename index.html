@@ -149,6 +149,15 @@
   .refitem .rrow .tg.why{background:#241a3a;color:#cbb8f5;border:1px solid #3a2d63}
   .refitem .rrow .tg.sum{background:#10243a;color:#8ec5ff;border:1px solid #1f3a5c}
   .refitem .rrow b{color:var(--txt)}
+  .refdetails > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;min-height:44px;
+    font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .refdetails > summary::-webkit-details-marker{display:none}
+  .refdetails > summary::before{content:"▸";color:var(--violet);font-size:13px;flex:0 0 auto}
+  .refdetails[open] > summary::before{content:"▾"}
+  .refdetails[open] > summary{margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:11px}
+  .refdetails > summary .rcount{margin-left:auto;font-size:10px;color:var(--dim);font-family:var(--mono);letter-spacing:0;text-transform:none;border:1px solid var(--line);border-radius:20px;padding:3px 9px;white-space:nowrap}
+  .refdetails > summary:hover{color:var(--txt)}
+  .refdetails:not([open]) > :not(summary){display:none}
   .disc{background:#3a1d1d;border:1px solid #7f3030;border-radius:11px;padding:12px 14px;font-size:12px;color:#ffd9d9;line-height:1.65}
   .disc b{color:#ffb3b3}
   footer{text-align:center;font-size:10.5px;color:var(--dim);font-family:var(--mono);padding:6px 0 0}
@@ -268,7 +277,7 @@
       <b>体重補正</b>：標準体重(BMI22)超で10kgあたり−0.1mL（肥満で減）。<br>
       <b>フェンタニル併用(帝切)</b>：血圧低下軽減のため×2/3。<br>
       <b>上限</b>：添付文書の4mL(20mg)で頭打ち。<br>
-      出典・根拠（理由＋要約＋リンク）は最下部の <a href="#refs">▸ 参考文献</a> を参照。本アプリは出典記載の計算例3例と一致を確認のうえ実装。
+      出典・根拠（理由＋要約＋リンク）は最下部の <a href="#refs" onclick="openRefs()">▸ 参考文献</a> を参照。本アプリは出典記載の計算例3例と一致を確認のうえ実装。
       </p>
     </details>
   </div>
@@ -288,12 +297,13 @@
       </div>
     </div>
     <details class="refbox"><summary>エビデンス</summary>
-      <p class="ref">本ツールの各挙動の根拠（<b>Carpenter 1998 / Hocking 2004 / Greene 1985</b>、用量＝<b>Axelsson 1981 / De Simone 1993</b>、添加薬＝<b>Pöpping 2012 / Sultan 2016 / Choi 2000</b> ほか）は、<b>「なぜ使ったか」＋要約＋リンク</b>つきで最下部の <a href="#refs">▸ 参考文献</a> にまとめてあります。</p>
+      <p class="ref">本ツールの各挙動の根拠（<b>Carpenter 1998 / Hocking 2004 / Greene 1985</b>、用量＝<b>Axelsson 1981 / De Simone 1993</b>、添加薬＝<b>Pöpping 2012 / Sultan 2016 / Choi 2000</b> ほか）は、<b>「なぜ使ったか」＋要約＋リンク</b>つきで最下部の <a href="#refs" onclick="openRefs()">▸ 参考文献</a> にまとめてあります。</p>
     </details>
   </div>
 
-  <div class="card" id="refs">
-    <h3>参考文献（使用した根拠と理由） <span class="hl"></span></h3>
+  <div class="card">
+    <details class="refdetails" id="refs">
+    <summary>参考文献（使用した根拠と理由）<span class="rcount">全10件 ・ クリックで展開</span></summary>
     <p class="reflead">各文献に <b style="color:#cbb8f5">使った理由（アプリのどこを支えるか）</b> と <b style="color:#8ec5ff">要約</b> を付けています。タイトルのリンクから原典/PubMedを参照できます。</p>
     <div class="reflist">
 
@@ -367,6 +377,7 @@
 
     </div>
     <p class="reflead" style="margin:13px 0 0">⚠ 文献値は<b>母集団の平均的傾向</b>であり、個々の患者では大きくばらつきます（特にCSF容量）。本ツールは教育用で、施設プロトコル・添付文書・最新ガイドラインでの確認に代わるものではありません。</p>
+    </details>
   </div>
 
   <footer>
@@ -643,8 +654,13 @@
   calc();
   plan();
 
+  // 参考文献は折りたたみ（クリックで展開）。#refs へのリンク/ハッシュで自動展開。
+  function openRefs(){ var d=$('refs'); if(d) d.open=true; }
+  if(location.hash==='#refs') openRefs();
+  window.addEventListener('hashchange',function(){ if(location.hash==='#refs') openRefs(); });
+
   // ---- PWA: version display + service worker + manual update ----
-  var VERSION='1.5.0';
+  var VERSION='1.5.1';
   $('verChip').textContent='v'+VERSION;
   $('verLabel').textContent=VERSION;
 
