@@ -1,7 +1,7 @@
 /* 脊髄くも膜下麻酔 ブロック高シミュレータ｜離島麻酔ツールキット — Service Worker
    完全オフライン: アプリ一式をキャッシュし、電波がなくても起動できるようにする。
    アプリを更新したら CACHE のバージョン文字列を上げること（古いキャッシュは自動削除）。 */
-const CACHE = 'spinal-level-v1.5.1';
+const CACHE = 'spinal-level-v1.5.2';
 const ASSETS = [
   './',
   './index.html',
@@ -21,7 +21,7 @@ self.addEventListener('install', function (e) {
 self.addEventListener('activate', function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
-      return Promise.all(keys.map(function (k) { if (k !== CACHE) return caches.delete(k); }));
+      return Promise.all(keys.map(function (k) { if (k.startsWith('spinal-level-') && k !== CACHE) return caches.delete(k); }));
     }).then(function () { return self.clients.claim(); })
   );
 });
